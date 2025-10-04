@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Preparation Tracker</title>
+    <title>DevOps Preparation Tracker - Multi-User</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
 :root {
   --color-primary: #2563eb;
@@ -67,6 +68,14 @@ body {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.user-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
 }
 
 /* Buttons */
@@ -110,6 +119,24 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+.btn--primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-light);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #dc2626;
+}
+
 .btn-icon {
   display: flex;
   align-items: center;
@@ -124,6 +151,92 @@ body {
 
 .btn-icon:hover {
   background-color: var(--color-border);
+}
+
+/* Auth Modal */
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-modal.hidden {
+  display: none;
+}
+
+.auth-form {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 1rem;
+}
+
+.auth-form h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.success {
+  color: var(--color-success);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.auth-switch button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 /* Main Content */
@@ -195,25 +308,6 @@ body {
 /* Search */
 .search-section {
   margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Topic Sections */
@@ -428,6 +522,38 @@ body {
   display: block;
 }
 
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sync-status.synced {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+}
+
+.sync-status.syncing {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.sync-status.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
 /* Footer */
 .footer {
   margin-top: 3rem;
@@ -454,23 +580,6 @@ body {
   text-decoration: underline;
 }
 
-/* Loading state */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-text-muted);
-}
-
-/* Error state */
-.error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 1rem;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .header .container {
@@ -481,6 +590,7 @@ body {
 
   .header__controls {
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .topic-header {
@@ -531,27 +641,85 @@ body {
   .subtopic-comments {
     margin-left: 1.75rem;
   }
+
+  .auth-form {
+    margin: 0.5rem;
+    padding: 1.5rem;
+  }
 }
     </style>
 </head>
 <body>
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-form">
+            <h2 id="authTitle">Sign In</h2>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" class="form-control">
+                </div>
+                <div class="error" id="authError"></div>
+                <div class="success" id="authSuccess"></div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn--primary" style="width: 100%;" id="authSubmit">
+                        Sign In
+                    </button>
+                </div>
+                <div class="auth-switch">
+                    <span id="authSwitchText">Don't have an account?</span>
+                    <button type="button" id="authSwitchBtn">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <header class="header">
         <div class="container">
             <h1 class="header__title">🚀 DevOps Preparation Tracker</h1>
             <div class="header__controls">
-                <button class="btn btn--secondary btn--sm" id="expandAllBtn">
+                <div class="sync-status synced" id="syncStatus">
+                    <span>●</span>
+                    <span>Synced</span>
+                </div>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <span id="userEmail"></span>
+                </div>
+                <button class="btn btn--secondary btn--sm" id="expandAllBtn" style="display: none;">
                     <span id="expandAllText">Expand All</span>
                 </button>
-                <button class="btn btn--outline btn--sm" id="exportBtn">📊 Export Progress</button>
-                <button class="btn btn--outline btn--sm" id="resetBtn">🔄 Reset All</button>
+                <button class="btn btn--outline btn--sm" id="exportBtn" style="display: none;">📊 Export Progress</button>
+                <button class="btn btn--outline btn--sm" id="signInBtn">🔐 Sign In</button>
+                <button class="btn btn--danger btn--sm" id="signOutBtn" style="display: none;">🚪 Sign Out</button>
             </div>
         </div>
     </header>
 
     <main class="main">
         <div class="container">
+            <!-- Welcome Section -->
+            <section class="welcome-section" id="welcomeSection">
+                <div class="card">
+                    <div class="card__body">
+                        <h2>👋 Welcome to DevOps Preparation Tracker</h2>
+                        <p>Track your DevOps interview preparation across 8 key technology areas with 80 comprehensive topics. Your progress is saved in the cloud and synced across all your devices.</p>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn--primary" id="getStartedBtn">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Overall Progress Section -->
-            <section class="progress-overview">
+            <section class="progress-overview" id="progressSection" style="display: none;">
                 <div class="card">
                     <div class="card__body">
                         <h2>📈 Overall Progress</h2>
@@ -570,7 +738,7 @@ body {
             </section>
 
             <!-- Search Section -->
-            <section class="search-section">
+            <section class="search-section" id="searchSection" style="display: none;">
                 <div class="form-group">
                     <input type="text" class="form-control" id="searchInput" 
                            placeholder="🔍 Search topics (e.g., Docker, Kubernetes, CI/CD...)">
@@ -578,7 +746,7 @@ body {
             </section>
 
             <!-- Topics Section -->
-            <section class="topics-section">
+            <section class="topics-section" id="topicsSection" style="display: none;">
                 <div id="topicsContainer">
                     <div class="loading">Loading DevOps topics...</div>
                 </div>
@@ -587,11 +755,12 @@ body {
             <!-- Footer -->
             <footer class="footer">
                 <div class="footer-content">
-                    <p>💡 <strong>Tip:</strong> Your progress is automatically saved in your browser. Export regularly to backup your data!</p>
+                    <p>💡 <strong>Multi-User DevOps Tracker:</strong> Your progress is automatically saved to the cloud and synced across devices!</p>
                     <p class="footer-links">
                         <a href="https://github.com" target="_blank">GitHub</a> •
                         <a href="https://kubernetes.io/docs" target="_blank">Kubernetes Docs</a> •
-                        <a href="https://terraform.io/docs" target="_blank">Terraform Docs</a>
+                        <a href="https://terraform.io/docs" target="_blank">Terraform Docs</a> •
+                        <a href="https://supabase.com" target="_blank">Powered by Supabase</a>
                     </p>
                 </div>
             </footer>
@@ -599,27 +768,34 @@ body {
     </main>
 
     <script>
-// DevOps Preparation Tracker Application with localStorage support
+// Supabase configuration - REPLACE WITH YOUR ACTUAL VALUES
+const SUPABASE_URL = 'https://ffkmdzknroalcmhpftcj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';
+
+// Initialize Supabase client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// DevOps Preparation Tracker with Supabase Integration
 class DevOpsTracker {
     constructor() {
-        this.storageKey = 'devops-tracker-data';
-        this.data = this.loadFromStorage() || {
+        this.user = null;
+        this.data = {
             "topics": [
                 {
                     "id": "terraform",
                     "name": "Terraform",
                     "description": "Infrastructure as Code with Terraform",
                     "subtopics": [
-                        {"id": "terraform-basics", "name": "Terraform Basics & Architecture", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "iac-concepts", "name": "Infrastructure as Code (IaC) Concepts", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "terraform-commands", "name": "Terraform Commands & CLI", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "state-management", "name": "State Management & Remote State", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "terraform-modules", "name": "Modules & Module Development", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "variables-datasources", "name": "Variables & Data Sources", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "providers", "name": "Providers & Provider Configuration", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "workspaces", "name": "Terraform Workspaces", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "terraform-security", "name": "Best Practices & Security", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "terraform-scenarios", "name": "Scenario-Based Questions", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "terraform-basics", "name": "Terraform Basics & Architecture", "completed": false, "comments": ""},
+                        {"id": "iac-concepts", "name": "Infrastructure as Code (IaC) Concepts", "completed": false, "comments": ""},
+                        {"id": "terraform-commands", "name": "Terraform Commands & CLI", "completed": false, "comments": ""},
+                        {"id": "state-management", "name": "State Management & Remote State", "completed": false, "comments": ""},
+                        {"id": "terraform-modules", "name": "Modules & Module Development", "completed": false, "comments": ""},
+                        {"id": "variables-datasources", "name": "Variables & Data Sources", "completed": false, "comments": ""},
+                        {"id": "providers", "name": "Providers & Provider Configuration", "completed": false, "comments": ""},
+                        {"id": "workspaces", "name": "Terraform Workspaces", "completed": false, "comments": ""},
+                        {"id": "terraform-security", "name": "Best Practices & Security", "completed": false, "comments": ""},
+                        {"id": "terraform-scenarios", "name": "Scenario-Based Questions", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -627,16 +803,16 @@ class DevOpsTracker {
                     "name": "Linux",
                     "description": "Linux System Administration & Operations",
                     "subtopics": [
-                        {"id": "linux-fundamentals", "name": "Linux Fundamentals & Architecture", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "file-system", "name": "File System & Directory Structure", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "command-line", "name": "Command Line & Shell Scripting", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "process-management", "name": "Process Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "system-admin", "name": "System Administration", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "network-config", "name": "Network Configuration", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "security-permissions", "name": "Security & Permissions", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "package-management", "name": "Package Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "system-monitoring", "name": "System Monitoring & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "performance-tuning", "name": "Performance Tuning", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "linux-fundamentals", "name": "Linux Fundamentals & Architecture", "completed": false, "comments": ""},
+                        {"id": "file-system", "name": "File System & Directory Structure", "completed": false, "comments": ""},
+                        {"id": "command-line", "name": "Command Line & Shell Scripting", "completed": false, "comments": ""},
+                        {"id": "process-management", "name": "Process Management", "completed": false, "comments": ""},
+                        {"id": "system-admin", "name": "System Administration", "completed": false, "comments": ""},
+                        {"id": "network-config", "name": "Network Configuration", "completed": false, "comments": ""},
+                        {"id": "security-permissions", "name": "Security & Permissions", "completed": false, "comments": ""},
+                        {"id": "package-management", "name": "Package Management", "completed": false, "comments": ""},
+                        {"id": "system-monitoring", "name": "System Monitoring & Troubleshooting", "completed": false, "comments": ""},
+                        {"id": "performance-tuning", "name": "Performance Tuning", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -644,16 +820,16 @@ class DevOpsTracker {
                     "name": "Kubernetes", 
                     "description": "Container Orchestration with Kubernetes",
                     "subtopics": [
-                        {"id": "k8s-architecture", "name": "Kubernetes Architecture & Components", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "pods-deployments", "name": "Pods, Deployments & Services", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "configmaps-secrets", "name": "ConfigMaps & Secrets", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "storage-pv", "name": "Storage & Persistent Volumes", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "k8s-networking", "name": "Networking & Ingress", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "rbac-security", "name": "RBAC & Security", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "monitoring-logging", "name": "Monitoring & Logging", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "helm", "name": "Helm & Package Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "k8s-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "k8s-best-practices", "name": "Best Practices & Scenarios", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "k8s-architecture", "name": "Kubernetes Architecture & Components", "completed": false, "comments": ""},
+                        {"id": "pods-deployments", "name": "Pods, Deployments & Services", "completed": false, "comments": ""},
+                        {"id": "configmaps-secrets", "name": "ConfigMaps & Secrets", "completed": false, "comments": ""},
+                        {"id": "storage-pv", "name": "Storage & Persistent Volumes", "completed": false, "comments": ""},
+                        {"id": "k8s-networking", "name": "Networking & Ingress", "completed": false, "comments": ""},
+                        {"id": "rbac-security", "name": "RBAC & Security", "completed": false, "comments": ""},
+                        {"id": "monitoring-logging", "name": "Monitoring & Logging", "completed": false, "comments": ""},
+                        {"id": "helm", "name": "Helm & Package Management", "completed": false, "comments": ""},
+                        {"id": "k8s-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": ""},
+                        {"id": "k8s-best-practices", "name": "Best Practices & Scenarios", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -661,16 +837,16 @@ class DevOpsTracker {
                     "name": "Jenkins",
                     "description": "CI/CD Automation with Jenkins", 
                     "subtopics": [
-                        {"id": "jenkins-architecture", "name": "Jenkins Architecture & Setup", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "pipeline-development", "name": "Pipeline Development (Declarative & Scripted)", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "plugin-management", "name": "Plugin Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "build-deployment", "name": "Build & Deployment Automation", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "jenkins-security", "name": "Security & User Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "master-slave", "name": "Master-Slave Configuration", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "git-integration", "name": "Integration with Git & SCM", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "docker-k8s-integration", "name": "Docker & Kubernetes Integration", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "jenkins-monitoring", "name": "Monitoring & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "jenkins-best-practices", "name": "Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "jenkins-architecture", "name": "Jenkins Architecture & Setup", "completed": false, "comments": ""},
+                        {"id": "pipeline-development", "name": "Pipeline Development (Declarative & Scripted)", "completed": false, "comments": ""},
+                        {"id": "plugin-management", "name": "Plugin Management", "completed": false, "comments": ""},
+                        {"id": "build-deployment", "name": "Build & Deployment Automation", "completed": false, "comments": ""},
+                        {"id": "jenkins-security", "name": "Security & User Management", "completed": false, "comments": ""},
+                        {"id": "master-slave", "name": "Master-Slave Configuration", "completed": false, "comments": ""},
+                        {"id": "git-integration", "name": "Integration with Git & SCM", "completed": false, "comments": ""},
+                        {"id": "docker-k8s-integration", "name": "Docker & Kubernetes Integration", "completed": false, "comments": ""},
+                        {"id": "jenkins-monitoring", "name": "Monitoring & Troubleshooting", "completed": false, "comments": ""},
+                        {"id": "jenkins-best-practices", "name": "Best Practices", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -678,16 +854,16 @@ class DevOpsTracker {
                     "name": "GitHub",
                     "description": "Version Control & GitHub Workflows",
                     "subtopics": [
-                        {"id": "git-fundamentals", "name": "Git Fundamentals & Commands", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "branching-merging", "name": "Branching & Merging Strategies", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "github-actions", "name": "GitHub Actions & Workflows", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "pull-requests", "name": "Pull Requests & Code Review", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "repo-management", "name": "Repository Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "github-security", "name": "GitHub Security Features", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "api-integrations", "name": "API & Integrations", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "team-collaboration", "name": "Collaboration & Team Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "advanced-git", "name": "Advanced Git Operations", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "git-best-practices", "name": "Best Practices & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "git-fundamentals", "name": "Git Fundamentals & Commands", "completed": false, "comments": ""},
+                        {"id": "branching-merging", "name": "Branching & Merging Strategies", "completed": false, "comments": ""},
+                        {"id": "github-actions", "name": "GitHub Actions & Workflows", "completed": false, "comments": ""},
+                        {"id": "pull-requests", "name": "Pull Requests & Code Review", "completed": false, "comments": ""},
+                        {"id": "repo-management", "name": "Repository Management", "completed": false, "comments": ""},
+                        {"id": "github-security", "name": "GitHub Security Features", "completed": false, "comments": ""},
+                        {"id": "api-integrations", "name": "API & Integrations", "completed": false, "comments": ""},
+                        {"id": "team-collaboration", "name": "Collaboration & Team Management", "completed": false, "comments": ""},
+                        {"id": "advanced-git", "name": "Advanced Git Operations", "completed": false, "comments": ""},
+                        {"id": "git-best-practices", "name": "Best Practices & Troubleshooting", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -695,16 +871,16 @@ class DevOpsTracker {
                     "name": "GitLab", 
                     "description": "GitLab CI/CD & DevOps Platform",
                     "subtopics": [
-                        {"id": "gitlab-architecture", "name": "GitLab Architecture & Setup", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-cicd", "name": "GitLab CI/CD Pipelines", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "runners-jobs", "name": "Runners & Job Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-security", "name": "Security & Access Control", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "container-registry", "name": "Container Registry", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-monitoring", "name": "Monitoring & Analytics", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-api", "name": "API & Integrations", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "multi-project", "name": "Multi-project Pipelines", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-vs-github", "name": "GitLab vs GitHub Comparison", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "gitlab-best-practices", "name": "Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "gitlab-architecture", "name": "GitLab Architecture & Setup", "completed": false, "comments": ""},
+                        {"id": "gitlab-cicd", "name": "GitLab CI/CD Pipelines", "completed": false, "comments": ""},
+                        {"id": "runners-jobs", "name": "Runners & Job Management", "completed": false, "comments": ""},
+                        {"id": "gitlab-security", "name": "Security & Access Control", "completed": false, "comments": ""},
+                        {"id": "container-registry", "name": "Container Registry", "completed": false, "comments": ""},
+                        {"id": "gitlab-monitoring", "name": "Monitoring & Analytics", "completed": false, "comments": ""},
+                        {"id": "gitlab-api", "name": "API & Integrations", "completed": false, "comments": ""},
+                        {"id": "multi-project", "name": "Multi-project Pipelines", "completed": false, "comments": ""},
+                        {"id": "gitlab-vs-github", "name": "GitLab vs GitHub Comparison", "completed": false, "comments": ""},
+                        {"id": "gitlab-best-practices", "name": "Best Practices", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -712,16 +888,16 @@ class DevOpsTracker {
                     "name": "ArgoCD",
                     "description": "GitOps Continuous Delivery with ArgoCD",
                     "subtopics": [
-                        {"id": "gitops-principles", "name": "GitOps Principles & Concepts", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "argocd-architecture", "name": "ArgoCD Architecture & Components", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "app-deployment", "name": "Application Deployment & Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "sync-strategies", "name": "Sync Strategies & Policies", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "multi-cluster", "name": "Multi-cluster Management", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "argocd-rbac", "name": "RBAC & Security", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "argocd-monitoring", "name": "Monitoring & Observability", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "argocd-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "cicd-integration", "name": "Integration with CI/CD", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "argocd-scenarios", "name": "Best Practices & Scenarios", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "gitops-principles", "name": "GitOps Principles & Concepts", "completed": false, "comments": ""},
+                        {"id": "argocd-architecture", "name": "ArgoCD Architecture & Components", "completed": false, "comments": ""},
+                        {"id": "app-deployment", "name": "Application Deployment & Management", "completed": false, "comments": ""},
+                        {"id": "sync-strategies", "name": "Sync Strategies & Policies", "completed": false, "comments": ""},
+                        {"id": "multi-cluster", "name": "Multi-cluster Management", "completed": false, "comments": ""},
+                        {"id": "argocd-rbac", "name": "RBAC & Security", "completed": false, "comments": ""},
+                        {"id": "argocd-monitoring", "name": "Monitoring & Observability", "completed": false, "comments": ""},
+                        {"id": "argocd-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": ""},
+                        {"id": "cicd-integration", "name": "Integration with CI/CD", "completed": false, "comments": ""},
+                        {"id": "argocd-scenarios", "name": "Best Practices & Scenarios", "completed": false, "comments": ""}
                     ]
                 },
                 {
@@ -729,84 +905,329 @@ class DevOpsTracker {
                     "name": "Networking",
                     "description": "Network Fundamentals for DevOps",
                     "subtopics": [
-                        {"id": "osi-tcpip", "name": "OSI & TCP/IP Model", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "ip-subnetting", "name": "IP Addressing & Subnetting", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "dns-dhcp", "name": "DNS & DHCP", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "routing-switching", "name": "Routing & Switching", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "load-balancing", "name": "Load Balancing & Proxies", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "firewalls", "name": "Firewalls & Security", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "cloud-networking", "name": "Cloud Networking (VPC, Subnets)", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "container-networking", "name": "Container Networking", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "network-troubleshooting", "name": "Troubleshooting Tools", "completed": false, "comments": "", "lastUpdated": null},
-                        {"id": "network-security", "name": "Network Security & Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                        {"id": "osi-tcpip", "name": "OSI & TCP/IP Model", "completed": false, "comments": ""},
+                        {"id": "ip-subnetting", "name": "IP Addressing & Subnetting", "completed": false, "comments": ""},
+                        {"id": "dns-dhcp", "name": "DNS & DHCP", "completed": false, "comments": ""},
+                        {"id": "routing-switching", "name": "Routing & Switching", "completed": false, "comments": ""},
+                        {"id": "load-balancing", "name": "Load Balancing & Proxies", "completed": false, "comments": ""},
+                        {"id": "firewalls", "name": "Firewalls & Security", "completed": false, "comments": ""},
+                        {"id": "cloud-networking", "name": "Cloud Networking (VPC, Subnets)", "completed": false, "comments": ""},
+                        {"id": "container-networking", "name": "Container Networking", "completed": false, "comments": ""},
+                        {"id": "network-troubleshooting", "name": "Troubleshooting Tools", "completed": false, "comments": ""},
+                        {"id": "network-security", "name": "Network Security & Best Practices", "completed": false, "comments": ""}
                     ]
                 }
-            ],
-            "settings": {
-                "createdDate": new Date().toISOString(),
-                "lastModified": new Date().toISOString()
-            }
+            ]
         };
 
         this.allExpanded = false;
-        console.log('DevOps Tracker initialized with data:', this.data);
+        this.isSignUp = false;
+
+        console.log('DevOps Tracker initialized');
         this.init();
     }
 
-    // localStorage methods
-    loadFromStorage() {
-        try {
-            const stored = localStorage.getItem(this.storageKey);
-            console.log('Loading data from storage:', stored ? 'Data found' : 'No data found');
-            return stored ? JSON.parse(stored) : null;
-        } catch (error) {
-            console.error('Error loading data from localStorage:', error);
-            return null;
-        }
-    }
-
-    saveToStorage() {
-        try {
-            this.data.settings.lastModified = new Date().toISOString();
-            localStorage.setItem(this.storageKey, JSON.stringify(this.data));
-            this.updateLastUpdatedDisplay();
-            console.log('Data saved to storage');
-        } catch (error) {
-            console.error('Error saving data to localStorage:', error);
-        }
-    }
-
-    clearStorage() {
-        try {
-            localStorage.removeItem(this.storageKey);
-            console.log('Storage cleared');
-        } catch (error) {
-            console.error('Error clearing localStorage:', error);
-        }
-    }
-
-    init() {
+    async init() {
         console.log('Initializing tracker...');
+        await this.checkAuthState();
+        this.bindEvents();
+        this.bindAuthEvents();
+        console.log('Tracker initialized successfully');
+    }
+
+    async checkAuthState() {
         try {
-            this.renderTopics();
-            this.updateProgress();
-            this.bindEvents();
-            this.updateLastUpdatedDisplay();
-            console.log('Tracker initialized successfully');
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+
+            if (session?.user) {
+                console.log('User authenticated:', session.user.email);
+                this.user = session.user;
+                await this.onUserSignedIn();
+            } else {
+                console.log('No user session found');
+                this.showWelcomeScreen();
+            }
+
+            // Listen for auth changes
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                console.log('Auth state changed:', event);
+
+                if (event === 'SIGNED_IN' && session?.user) {
+                    this.user = session.user;
+                    await this.onUserSignedIn();
+                } else if (event === 'SIGNED_OUT') {
+                    this.user = null;
+                    this.onUserSignedOut();
+                }
+            });
+
         } catch (error) {
-            console.error('Error during initialization:', error);
-            this.showError('Failed to initialize tracker: ' + error.message);
+            console.error('Error checking auth state:', error);
         }
     }
 
-    showError(message) {
-        const container = document.getElementById('topicsContainer');
-        container.innerHTML = `<div class="error">Error: ${message}</div>`;
+    async onUserSignedIn() {
+        console.log('User signed in, loading progress...');
+        this.hideAuthModal();
+        this.showMainInterface();
+        this.updateUI();
+        await this.loadProgressFromDatabase();
+        this.renderTopics();
+        this.updateProgress();
+    }
+
+    onUserSignedOut() {
+        console.log('User signed out');
+        this.showWelcomeScreen();
+        this.updateUI();
+    }
+
+    showWelcomeScreen() {
+        document.getElementById('welcomeSection').style.display = 'block';
+        document.getElementById('progressSection').style.display = 'none';
+        document.getElementById('searchSection').style.display = 'none';
+        document.getElementById('topicsSection').style.display = 'none';
+    }
+
+    showMainInterface() {
+        document.getElementById('welcomeSection').style.display = 'none';
+        document.getElementById('progressSection').style.display = 'block';
+        document.getElementById('searchSection').style.display = 'block';
+        document.getElementById('topicsSection').style.display = 'block';
+    }
+
+    updateUI() {
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        if (this.user) {
+            userInfo.style.display = 'block';
+            userEmail.textContent = this.user.email;
+            signInBtn.style.display = 'none';
+            signOutBtn.style.display = 'inline-flex';
+            expandAllBtn.style.display = 'inline-flex';
+            exportBtn.style.display = 'inline-flex';
+        } else {
+            userInfo.style.display = 'none';
+            signInBtn.style.display = 'inline-flex';
+            signOutBtn.style.display = 'none';
+            expandAllBtn.style.display = 'none';
+            exportBtn.style.display = 'none';
+        }
+    }
+
+    async loadProgressFromDatabase() {
+        if (!this.user) return;
+
+        this.setSyncStatus('syncing', 'Loading...');
+
+        try {
+            const { data, error } = await supabase
+                .from('user_progress')
+                .select('topic_data, updated_at')
+                .eq('user_id', this.user.id)
+                .single();
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+                console.error('Error loading progress:', error);
+                this.setSyncStatus('error', 'Load failed');
+                return;
+            }
+
+            if (data?.topic_data) {
+                console.log('Progress loaded from database');
+                this.data.topics = data.topic_data;
+                this.setSyncStatus('synced', 'Synced');
+            } else {
+                console.log('No progress found, creating new record');
+                await this.saveProgressToDatabase();
+            }
+
+        } catch (error) {
+            console.error('Error loading progress:', error);
+            this.setSyncStatus('error', 'Load failed');
+        }
+    }
+
+    async saveProgressToDatabase() {
+        if (!this.user) return;
+
+        this.setSyncStatus('syncing', 'Saving...');
+
+        try {
+            const { error } = await supabase
+                .from('user_progress')
+                .upsert({
+                    user_id: this.user.id,
+                    topic_data: this.data.topics,
+                    updated_at: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error('Error saving progress:', error);
+                this.setSyncStatus('error', 'Save failed');
+                return;
+            }
+
+            console.log('Progress saved to database');
+            this.setSyncStatus('synced', 'Synced');
+
+        } catch (error) {
+            console.error('Error saving progress:', error);
+            this.setSyncStatus('error', 'Save failed');
+        }
+    }
+
+    setSyncStatus(status, text) {
+        const syncStatus = document.getElementById('syncStatus');
+        syncStatus.className = `sync-status ${status}`;
+        syncStatus.innerHTML = `<span>●</span><span>${text}</span>`;
+    }
+
+    bindAuthEvents() {
+        const authForm = document.getElementById('authForm');
+        const authSwitchBtn = document.getElementById('authSwitchBtn');
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+
+        authForm.addEventListener('submit', (e) => this.handleAuth(e));
+        authSwitchBtn.addEventListener('click', () => this.toggleAuthMode());
+        signInBtn.addEventListener('click', () => this.showAuthModal());
+        signOutBtn.addEventListener('click', () => this.signOut());
+        getStartedBtn.addEventListener('click', () => this.showAuthModal());
+    }
+
+    showAuthModal() {
+        document.getElementById('authModal').classList.remove('hidden');
+        document.getElementById('email').focus();
+    }
+
+    hideAuthModal() {
+        document.getElementById('authModal').classList.add('hidden');
+        this.clearAuthForm();
+    }
+
+    toggleAuthMode() {
+        this.isSignUp = !this.isSignUp;
+        const authTitle = document.getElementById('authTitle');
+        const authSubmit = document.getElementById('authSubmit');
+        const authSwitchText = document.getElementById('authSwitchText');
+        const authSwitchBtn = document.getElementById('authSwitchBtn');
+        const nameGroup = document.getElementById('nameGroup');
+
+        if (this.isSignUp) {
+            authTitle.textContent = 'Sign Up';
+            authSubmit.textContent = 'Sign Up';
+            authSwitchText.textContent = 'Already have an account?';
+            authSwitchBtn.textContent = 'Sign In';
+            nameGroup.style.display = 'block';
+        } else {
+            authTitle.textContent = 'Sign In';
+            authSubmit.textContent = 'Sign In';
+            authSwitchText.textContent = "Don't have an account?";
+            authSwitchBtn.textContent = 'Sign Up';
+            nameGroup.style.display = 'none';
+        }
+
+        this.clearAuthMessages();
+    }
+
+    async handleAuth(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const fullName = document.getElementById('fullName').value;
+
+        this.clearAuthMessages();
+
+        const submitBtn = document.getElementById('authSubmit');
+        submitBtn.textContent = this.isSignUp ? 'Signing Up...' : 'Signing In...';
+        submitBtn.disabled = true;
+
+        try {
+            if (this.isSignUp) {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: fullName
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data?.user && !data.session) {
+                    this.showAuthMessage('success', 'Please check your email for the verification link!');
+                    return;
+                }
+            } else {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+            }
+
+        } catch (error) {
+            console.error('Auth error:', error);
+            this.showAuthMessage('error', error.message);
+        } finally {
+            submitBtn.textContent = this.isSignUp ? 'Sign Up' : 'Sign In';
+            submitBtn.disabled = false;
+        }
+    }
+
+    async signOut() {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            console.log('User signed out successfully');
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    }
+
+    showAuthMessage(type, message) {
+        const errorEl = document.getElementById('authError');
+        const successEl = document.getElementById('authSuccess');
+
+        if (type === 'error') {
+            errorEl.textContent = message;
+            successEl.textContent = '';
+        } else {
+            successEl.textContent = message;
+            errorEl.textContent = '';
+        }
+    }
+
+    clearAuthMessages() {
+        document.getElementById('authError').textContent = '';
+        document.getElementById('authSuccess').textContent = '';
+    }
+
+    clearAuthForm() {
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('fullName').value = '';
+        this.clearAuthMessages();
     }
 
     bindEvents() {
-        console.log('Binding events...');
-
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
@@ -831,16 +1252,18 @@ class DevOpsTracker {
             });
         }
 
-        // Reset all data
-        const resetBtn = document.getElementById('resetBtn');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                this.resetAllData();
-            });
-        }
+        // Click outside to close modal
+        const authModal = document.getElementById('authModal');
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                this.hideAuthModal();
+            }
+        });
     }
 
     renderTopics() {
+        if (!this.user) return;
+
         console.log('Rendering topics...');
         const container = document.getElementById('topicsContainer');
         if (!container) {
@@ -848,17 +1271,9 @@ class DevOpsTracker {
             return;
         }
 
-        if (!this.data.topics || !Array.isArray(this.data.topics)) {
-            console.error('No topics data found');
-            container.innerHTML = '<div class="error">No topics data available</div>';
-            return;
-        }
-
         container.innerHTML = '';
 
         this.data.topics.forEach((topic, index) => {
-            console.log(`Rendering topic: ${topic.name}`);
-
             const completedCount = topic.subtopics.filter(st => st.completed).length;
             const totalCount = topic.subtopics.length;
             const percentage = Math.round((completedCount / totalCount) * 100);
@@ -909,7 +1324,6 @@ class DevOpsTracker {
                                     <div class="subtopic-comments">
                                         <textarea class="form-control" placeholder="Add your notes and comments here..." 
                                                   data-topic="${topic.id}" data-subtopic="${subtopic.id}">${subtopic.comments || ''}</textarea>
-                                        ${subtopic.lastUpdated ? `<small class="text-muted">Last updated: ${new Date(subtopic.lastUpdated).toLocaleDateString()}</small>` : ''}
                                     </div>
                                 </div>
                             `).join('')}
@@ -926,7 +1340,7 @@ class DevOpsTracker {
     }
 
     bindTopicEvents() {
-        console.log('Binding topic events...');
+        if (!this.user) return;
 
         // Topic toggle functionality
         document.querySelectorAll('.topic-header').forEach(header => {
@@ -940,19 +1354,19 @@ class DevOpsTracker {
 
         // Checkbox change events
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', async (e) => {
                 const topicId = e.target.getAttribute('data-topic');
                 const subtopicId = e.target.getAttribute('data-subtopic');
-                this.toggleSubtopic(topicId, subtopicId, e.target.checked);
+                await this.toggleSubtopic(topicId, subtopicId, e.target.checked);
             });
         });
 
         // Comment textarea events
         document.querySelectorAll('.subtopic-comments textarea').forEach(textarea => {
-            textarea.addEventListener('blur', (e) => {
+            textarea.addEventListener('blur', async (e) => {
                 const topicId = e.target.getAttribute('data-topic');
                 const subtopicId = e.target.getAttribute('data-subtopic');
-                this.updateSubtopicComment(topicId, subtopicId, e.target.value);
+                await this.updateSubtopicComment(topicId, subtopicId, e.target.value);
             });
         });
     }
@@ -998,12 +1412,11 @@ class DevOpsTracker {
         expandAllText.textContent = this.allExpanded ? 'Collapse All' : 'Expand All';
     }
 
-    toggleSubtopic(topicId, subtopicId, completed) {
+    async toggleSubtopic(topicId, subtopicId, completed) {
         const topic = this.data.topics.find(t => t.id === topicId);
         const subtopic = topic.subtopics.find(st => st.id === subtopicId);
 
         subtopic.completed = completed;
-        subtopic.lastUpdated = new Date().toISOString();
 
         // Update UI
         const subtopicElement = document.querySelector(`[data-subtopic-id="${subtopicId}"]`);
@@ -1014,20 +1427,20 @@ class DevOpsTracker {
         }
 
         this.updateProgress();
-        this.saveToStorage();
+        await this.saveProgressToDatabase();
     }
 
-    updateSubtopicComment(topicId, subtopicId, comment) {
+    async updateSubtopicComment(topicId, subtopicId, comment) {
         const topic = this.data.topics.find(t => t.id === topicId);
         const subtopic = topic.subtopics.find(st => st.id === subtopicId);
 
         subtopic.comments = comment;
-        subtopic.lastUpdated = new Date().toISOString();
-
-        this.saveToStorage();
+        await this.saveProgressToDatabase();
     }
 
     updateProgress() {
+        if (!this.user) return;
+
         const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
         const completedSubtopics = this.data.topics.reduce((sum, topic) => 
             sum + topic.subtopics.filter(st => st.completed).length, 0);
@@ -1038,10 +1451,12 @@ class DevOpsTracker {
         const progressFill = document.getElementById('overallProgressFill');
         const progressText = document.getElementById('overallProgressText');
         const completedStats = document.getElementById('completedStats');
+        const lastUpdated = document.getElementById('lastUpdated');
 
         if (progressFill) progressFill.style.width = `${overallPercentage}%`;
         if (progressText) progressText.textContent = `${overallPercentage}%`;
         if (completedStats) completedStats.textContent = `${completedSubtopics} of ${totalSubtopics} topics completed`;
+        if (lastUpdated) lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
 
         // Update individual topic progress circles
         this.data.topics.forEach(topic => {
@@ -1097,22 +1512,14 @@ class DevOpsTracker {
         });
     }
 
-    updateLastUpdatedDisplay() {
-        const lastUpdated = document.getElementById('lastUpdated');
-        if (lastUpdated && this.data.settings && this.data.settings.lastModified) {
-            const date = new Date(this.data.settings.lastModified);
-            lastUpdated.textContent = `Last updated: ${date.toLocaleString()}`;
-        } else if (lastUpdated) {
-            lastUpdated.textContent = 'Last updated: Never';
-        }
-    }
-
     exportProgress() {
+        if (!this.user) return;
+
         const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
         const completedSubtopics = this.data.topics.reduce((sum, topic) => 
             sum + topic.subtopics.filter(st => st.completed).length, 0);
 
-        let exportText = `DevOps Preparation Progress Report\n`;
+        let exportText = `DevOps Preparation Progress Report - ${this.user.email}\n`;
         exportText += `Generated: ${new Date().toLocaleString()}\n`;
         exportText += `Overall Progress: ${completedSubtopics}/${totalSubtopics} (${Math.round((completedSubtopics / totalSubtopics) * 100)}%)\n\n`;
 
@@ -1139,48 +1546,43 @@ class DevOpsTracker {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `devops-prep-progress-${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `devops-prep-progress-${this.user.email.split('@')[0]}-${new Date().toISOString().split('T')[0]}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }
-
-    resetAllData() {
-        if (confirm('Are you sure you want to reset all progress? This action cannot be undone.')) {
-            this.clearStorage();
-
-            // Reset data structure
-            this.data.topics.forEach(topic => {
-                topic.subtopics.forEach(subtopic => {
-                    subtopic.completed = false;
-                    subtopic.comments = '';
-                    subtopic.lastUpdated = null;
-                });
-            });
-
-            this.data.settings = {
-                createdDate: new Date().toISOString(),
-                lastModified: new Date().toISOString()
-            };
-
-            this.saveToStorage();
-            this.renderTopics();
-            this.updateProgress();
-        }
     }
 }
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing DevOps Tracker...');
+
+    // Check if Supabase configuration is provided
+    if (SUPABASE_URL === 'https://ffkmdzknroalcmhpftcj.supabase.co' || SUPABASE_ANON_KEY === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs') {
+        document.getElementById('topicsContainer').innerHTML = `
+            <div class="card">
+                <div class="card__body">
+                    <h3>⚙️ Setup Required</h3>
+                    <p>Please configure your Supabase credentials in the JavaScript code:</p>
+                    <ol>
+                        <li>Replace <code>YOUR_SUPABASE_URL_HERE</code> with your Supabase project URL</li>
+                        <li>Replace <code>YOUR_SUPABASE_ANON_KEY_HERE</code> with your Supabase anon key</li>
+                        <li>Set up the required database table (see setup instructions)</li>
+                    </ol>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
     try {
         new DevOpsTracker();
     } catch (error) {
         console.error('Failed to initialize DevOps Tracker:', error);
         document.getElementById('topicsContainer').innerHTML = `
             <div class="error">
-                Failed to load DevOps Tracker. Please refresh the page.<br>
+                Failed to load DevOps Tracker. Please check your Supabase configuration.<br>
                 Error: ${error.message}
             </div>
         `;
