@@ -94,6 +94,11 @@ body {
   white-space: nowrap;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn--sm {
   padding: 0.375rem 0.75rem;
   font-size: 0.8rem;
@@ -104,7 +109,7 @@ body {
   color: white;
 }
 
-.btn--secondary:hover {
+.btn--secondary:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -114,7 +119,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.btn--outline:hover {
+.btn--outline:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.5);
 }
@@ -124,7 +129,7 @@ body {
   color: white;
 }
 
-.btn--primary:hover {
+.btn--primary:hover:not(:disabled) {
   background: var(--color-primary-light);
 }
 
@@ -133,7 +138,7 @@ body {
   color: white;
 }
 
-.btn--danger:hover {
+.btn--danger:hover:not(:disabled) {
   background: #dc2626;
 }
 
@@ -165,6 +170,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .auth-modal.hidden {
@@ -175,16 +181,18 @@ body {
   background: white;
   padding: 2rem;
   border-radius: var(--border-radius);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
   margin: 1rem;
+  position: relative;
 }
 
 .auth-form h2 {
   margin-bottom: 1.5rem;
   text-align: center;
   color: var(--color-text);
+  font-size: 1.5rem;
 }
 
 .form-group {
@@ -217,18 +225,28 @@ body {
   color: var(--color-danger);
   font-size: 0.875rem;
   margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--color-danger);
 }
 
 .success {
   color: var(--color-success);
   font-size: 0.875rem;
   margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--color-success);
 }
 
 .auth-switch {
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   font-size: 0.875rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .auth-switch button {
@@ -236,7 +254,34 @@ body {
   border: none;
   color: var(--color-primary);
   cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+.auth-switch button:hover {
   text-decoration: underline;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-modal:hover {
+  background: var(--color-border);
 }
 
 /* Main Content */
@@ -651,24 +696,25 @@ body {
 </head>
 <body>
     <!-- Authentication Modal -->
-    <div class="auth-modal" id="authModal">
+    <div class="auth-modal hidden" id="authModal">
         <div class="auth-form">
-            <h2 id="authTitle">Sign In</h2>
+            <button class="close-modal" id="closeModal" type="button">&times;</button>
+            <h2 id="authTitle">Welcome Back</h2>
             <form id="authForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-control" required>
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" required placeholder="Enter your email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" class="form-control" required>
+                    <input type="password" id="password" class="form-control" required placeholder="Enter your password">
                 </div>
                 <div class="form-group" id="nameGroup" style="display: none;">
                     <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" class="form-control">
+                    <input type="text" id="fullName" class="form-control" placeholder="Enter your full name">
                 </div>
-                <div class="error" id="authError"></div>
-                <div class="success" id="authSuccess"></div>
+                <div id="authError" class="error" style="display: none;"></div>
+                <div id="authSuccess" class="success" style="display: none;"></div>
                 <div class="form-group">
                     <button type="submit" class="btn btn--primary" style="width: 100%;" id="authSubmit">
                         Sign In
@@ -688,10 +734,10 @@ body {
             <div class="header__controls">
                 <div class="sync-status synced" id="syncStatus">
                     <span>●</span>
-                    <span>Synced</span>
+                    <span>Ready</span>
                 </div>
                 <div class="user-info" id="userInfo" style="display: none;">
-                    <span id="userEmail"></span>
+                    👤 <span id="userEmail"></span>
                 </div>
                 <button class="btn btn--secondary btn--sm" id="expandAllBtn" style="display: none;">
                     <span id="expandAllText">Expand All</span>
@@ -710,9 +756,16 @@ body {
                 <div class="card">
                     <div class="card__body">
                         <h2>👋 Welcome to DevOps Preparation Tracker</h2>
-                        <p>Track your DevOps interview preparation across 8 key technology areas with 80 comprehensive topics. Your progress is saved in the cloud and synced across all your devices.</p>
-                        <div style="margin-top: 1rem;">
-                            <button class="btn btn--primary" id="getStartedBtn">Get Started</button>
+                        <p style="margin-bottom: 1rem;">Track your DevOps interview preparation across 8 key technology areas with 80 comprehensive topics. Your progress is saved in the cloud and synced across all your devices.</p>
+                        <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
+                            ✅ Multi-user support with secure authentication<br>
+                            ✅ Cloud storage with automatic sync<br>
+                            ✅ Progress tracking across all devices<br>
+                            ✅ Private data for each user
+                        </p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn btn--primary" id="getStartedBtn">🚀 Get Started</button>
+                            <button class="btn btn--outline" id="learnMoreBtn" style="color: var(--color-primary); border-color: var(--color-primary);">📖 Learn More</button>
                         </div>
                     </div>
                 </div>
@@ -772,13 +825,27 @@ body {
 const SUPABASE_URL = 'https://ffkmdzknroalcmhpftcj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Check if demo mode (no credentials provided)
+const DEMO_MODE = SUPABASE_URL === 'https://ffkmdzknroalcmhpftcj.supabase.co' || SUPABASE_ANON_KEY === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';
+
+// Initialize Supabase client (only if not in demo mode)
+let supabase = null;
+if (!DEMO_MODE) {
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase client initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+    }
+}
 
 // DevOps Preparation Tracker with Supabase Integration
 class DevOpsTracker {
     constructor() {
         this.user = null;
+        this.isSignUp = false;
+        this.demoMode = DEMO_MODE;
+
         this.data = {
             "topics": [
                 {
@@ -921,21 +988,72 @@ class DevOpsTracker {
         };
 
         this.allExpanded = false;
-        this.isSignUp = false;
 
-        console.log('DevOps Tracker initialized');
+        console.log('DevOps Tracker initialized in', this.demoMode ? 'DEMO MODE' : 'PRODUCTION MODE');
         this.init();
     }
 
     async init() {
         console.log('Initializing tracker...');
-        await this.checkAuthState();
+
+        if (this.demoMode) {
+            this.initDemoMode();
+        } else {
+            await this.checkAuthState();
+        }
+
         this.bindEvents();
         this.bindAuthEvents();
         console.log('Tracker initialized successfully');
     }
 
+    initDemoMode() {
+        console.log('Running in demo mode - configure Supabase credentials for full functionality');
+        this.setSyncStatus('error', 'Demo Mode');
+        this.showWelcomeScreen();
+
+        // Show demo notification in welcome section
+        const welcomeSection = document.getElementById('welcomeSection');
+        welcomeSection.innerHTML = `
+            <div class="card">
+                <div class="card__body">
+                    <h2>⚙️ Configuration Required</h2>
+                    <p style="margin-bottom: 1rem;">To enable multi-user authentication and cloud storage, please configure your Supabase credentials:</p>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-family: monospace; font-size: 0.9rem;">
+                        <p><strong>1. Update these values in the code:</strong></p>
+                        <p style="color: #dc2626;">SUPABASE_URL = 'your-project-url'</p>
+                        <p style="color: #dc2626;">SUPABASE_ANON_KEY = 'your-anon-key'</p>
+                    </div>
+                    <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
+                        📖 <strong>Setup Instructions:</strong> Follow the complete setup guide to create your Supabase project and configure authentication.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn--primary" id="tryDemoBtn">📱 Try Demo Mode</button>
+                        <button class="btn btn--outline" style="color: var(--color-primary); border-color: var(--color-primary);">📖 View Setup Guide</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add demo mode functionality
+        document.getElementById('tryDemoBtn').addEventListener('click', () => {
+            this.startDemoMode();
+        });
+    }
+
+    startDemoMode() {
+        console.log('Starting demo mode...');
+        this.user = { email: 'demo@example.com', id: 'demo-user' };
+        this.showMainInterface();
+        this.updateUI();
+        this.renderTopics();
+        this.updateProgress();
+        this.setSyncStatus('syncing', 'Demo Mode');
+    }
+
     async checkAuthState() {
+        if (!supabase) return;
+
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
 
@@ -985,6 +1103,7 @@ class DevOpsTracker {
         console.log('User signed out');
         this.showWelcomeScreen();
         this.updateUI();
+        this.setSyncStatus('synced', 'Ready');
     }
 
     showWelcomeScreen() {
@@ -1026,7 +1145,7 @@ class DevOpsTracker {
     }
 
     async loadProgressFromDatabase() {
-        if (!this.user) return;
+        if (!this.user || !supabase || this.demoMode) return;
 
         this.setSyncStatus('syncing', 'Loading...');
 
@@ -1059,7 +1178,7 @@ class DevOpsTracker {
     }
 
     async saveProgressToDatabase() {
-        if (!this.user) return;
+        if (!this.user || !supabase || this.demoMode) return;
 
         this.setSyncStatus('syncing', 'Saving...');
 
@@ -1099,26 +1218,77 @@ class DevOpsTracker {
         const signInBtn = document.getElementById('signInBtn');
         const signOutBtn = document.getElementById('signOutBtn');
         const getStartedBtn = document.getElementById('getStartedBtn');
+        const learnMoreBtn = document.getElementById('learnMoreBtn');
+        const closeModal = document.getElementById('closeModal');
 
-        authForm.addEventListener('submit', (e) => this.handleAuth(e));
-        authSwitchBtn.addEventListener('click', () => this.toggleAuthMode());
-        signInBtn.addEventListener('click', () => this.showAuthModal());
-        signOutBtn.addEventListener('click', () => this.signOut());
-        getStartedBtn.addEventListener('click', () => this.showAuthModal());
+        // Form submission
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleAuth(e);
+        });
+
+        // Switch between sign in / sign up
+        authSwitchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleAuthMode();
+        });
+
+        // Show modal buttons
+        signInBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showAuthModal();
+        });
+
+        getStartedBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showAuthModal();
+        });
+
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('DevOps Preparation Tracker helps you systematically prepare for DevOps interviews across 8 key technology areas with progress tracking and cloud sync.');
+            });
+        }
+
+        // Sign out
+        signOutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.signOut();
+        });
+
+        // Close modal
+        closeModal.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.hideAuthModal();
+        });
     }
 
     showAuthModal() {
-        document.getElementById('authModal').classList.remove('hidden');
-        document.getElementById('email').focus();
+        if (this.demoMode) {
+            this.startDemoMode();
+            return;
+        }
+
+        const modal = document.getElementById('authModal');
+        modal.classList.remove('hidden');
+
+        // Focus email field after animation
+        setTimeout(() => {
+            document.getElementById('email').focus();
+        }, 100);
     }
 
     hideAuthModal() {
-        document.getElementById('authModal').classList.add('hidden');
+        const modal = document.getElementById('authModal');
+        modal.classList.add('hidden');
         this.clearAuthForm();
     }
 
     toggleAuthMode() {
         this.isSignUp = !this.isSignUp;
+        console.log('Toggling auth mode to:', this.isSignUp ? 'Sign Up' : 'Sign In');
+
         const authTitle = document.getElementById('authTitle');
         const authSubmit = document.getElementById('authSubmit');
         const authSwitchText = document.getElementById('authSwitchText');
@@ -1126,17 +1296,19 @@ class DevOpsTracker {
         const nameGroup = document.getElementById('nameGroup');
 
         if (this.isSignUp) {
-            authTitle.textContent = 'Sign Up';
+            authTitle.textContent = 'Create Account';
             authSubmit.textContent = 'Sign Up';
             authSwitchText.textContent = 'Already have an account?';
             authSwitchBtn.textContent = 'Sign In';
             nameGroup.style.display = 'block';
+            document.getElementById('fullName').setAttribute('required', 'required');
         } else {
-            authTitle.textContent = 'Sign In';
+            authTitle.textContent = 'Welcome Back';
             authSubmit.textContent = 'Sign In';
             authSwitchText.textContent = "Don't have an account?";
             authSwitchBtn.textContent = 'Sign Up';
             nameGroup.style.display = 'none';
+            document.getElementById('fullName').removeAttribute('required');
         }
 
         this.clearAuthMessages();
@@ -1145,18 +1317,46 @@ class DevOpsTracker {
     async handleAuth(e) {
         e.preventDefault();
 
-        const email = document.getElementById('email').value;
+        if (this.demoMode) {
+            this.startDemoMode();
+            return;
+        }
+
+        if (!supabase) {
+            this.showAuthMessage('error', 'Supabase not configured properly');
+            return;
+        }
+
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const fullName = document.getElementById('fullName').value;
+        const fullName = document.getElementById('fullName').value.trim();
+
+        // Basic validation
+        if (!email || !password) {
+            this.showAuthMessage('error', 'Please fill in all required fields');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showAuthMessage('error', 'Password must be at least 6 characters');
+            return;
+        }
+
+        if (this.isSignUp && !fullName) {
+            this.showAuthMessage('error', 'Please enter your full name');
+            return;
+        }
 
         this.clearAuthMessages();
 
         const submitBtn = document.getElementById('authSubmit');
-        submitBtn.textContent = this.isSignUp ? 'Signing Up...' : 'Signing In...';
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = this.isSignUp ? 'Creating Account...' : 'Signing In...';
         submitBtn.disabled = true;
 
         try {
             if (this.isSignUp) {
+                console.log('Attempting to sign up user:', email);
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -1170,28 +1370,54 @@ class DevOpsTracker {
                 if (error) throw error;
 
                 if (data?.user && !data.session) {
-                    this.showAuthMessage('success', 'Please check your email for the verification link!');
+                    this.showAuthMessage('success', 'Account created! Please check your email for the verification link.');
+                    console.log('Sign up successful, verification email sent');
                     return;
+                } else if (data?.session) {
+                    console.log('Sign up successful with immediate session');
+                    this.showAuthMessage('success', 'Account created successfully!');
                 }
             } else {
+                console.log('Attempting to sign in user:', email);
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
                 if (error) throw error;
+
+                console.log('Sign in successful');
             }
 
         } catch (error) {
             console.error('Auth error:', error);
-            this.showAuthMessage('error', error.message);
+            let errorMessage = error.message;
+
+            // Provide user-friendly error messages
+            if (errorMessage.includes('Invalid login credentials')) {
+                errorMessage = 'Invalid email or password. Please check your credentials.';
+            } else if (errorMessage.includes('Email not confirmed')) {
+                errorMessage = 'Please verify your email address before signing in.';
+            } else if (errorMessage.includes('User already registered')) {
+                errorMessage = 'An account with this email already exists. Try signing in instead.';
+            }
+
+            this.showAuthMessage('error', errorMessage);
         } finally {
-            submitBtn.textContent = this.isSignUp ? 'Sign Up' : 'Sign In';
+            submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
     }
 
     async signOut() {
+        if (this.demoMode) {
+            this.user = null;
+            this.onUserSignedOut();
+            return;
+        }
+
+        if (!supabase) return;
+
         try {
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
@@ -1199,6 +1425,7 @@ class DevOpsTracker {
             console.log('User signed out successfully');
         } catch (error) {
             console.error('Error signing out:', error);
+            this.showAuthMessage('error', 'Failed to sign out. Please try again.');
         }
     }
 
@@ -1208,16 +1435,22 @@ class DevOpsTracker {
 
         if (type === 'error') {
             errorEl.textContent = message;
-            successEl.textContent = '';
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
         } else {
             successEl.textContent = message;
-            errorEl.textContent = '';
+            successEl.style.display = 'block';
+            errorEl.style.display = 'none';
         }
     }
 
     clearAuthMessages() {
-        document.getElementById('authError').textContent = '';
-        document.getElementById('authSuccess').textContent = '';
+        const errorEl = document.getElementById('authError');
+        const successEl = document.getElementById('authSuccess');
+        errorEl.textContent = '';
+        successEl.textContent = '';
+        errorEl.style.display = 'none';
+        successEl.style.display = 'none';
     }
 
     clearAuthForm() {
@@ -1252,7 +1485,7 @@ class DevOpsTracker {
             });
         }
 
-        // Click outside to close modal
+        // Click outside modal to close
         const authModal = document.getElementById('authModal');
         authModal.addEventListener('click', (e) => {
             if (e.target === authModal) {
@@ -1558,32 +1791,16 @@ class DevOpsTracker {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing DevOps Tracker...');
 
-    // Check if Supabase configuration is provided
-    if (SUPABASE_URL === 'https://ffkmdzknroalcmhpftcj.supabase.co' || SUPABASE_ANON_KEY === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs') {
-        document.getElementById('topicsContainer').innerHTML = `
-            <div class="card">
-                <div class="card__body">
-                    <h3>⚙️ Setup Required</h3>
-                    <p>Please configure your Supabase credentials in the JavaScript code:</p>
-                    <ol>
-                        <li>Replace <code>YOUR_SUPABASE_URL_HERE</code> with your Supabase project URL</li>
-                        <li>Replace <code>YOUR_SUPABASE_ANON_KEY_HERE</code> with your Supabase anon key</li>
-                        <li>Set up the required database table (see setup instructions)</li>
-                    </ol>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
     try {
-        new DevOpsTracker();
+        window.tracker = new DevOpsTracker();
     } catch (error) {
         console.error('Failed to initialize DevOps Tracker:', error);
-        document.getElementById('topicsContainer').innerHTML = `
-            <div class="error">
-                Failed to load DevOps Tracker. Please check your Supabase configuration.<br>
-                Error: ${error.message}
+        const container = document.getElementById('topicsContainer') || document.body;
+        container.innerHTML = `
+            <div style="background: #fee; border: 1px solid #fcc; padding: 1rem; border-radius: 8px; margin: 1rem;">
+                <h3>❌ Initialization Failed</h3>
+                <p>Failed to load DevOps Tracker. Please check the browser console for details.</p>
+                <p><strong>Error:</strong> ${error.message}</p>
             </div>
         `;
     }
