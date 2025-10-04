@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Preparation Tracker - Multi-User</title>
+    <title>DevOps Preparation Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
 :root {
   --color-primary: #2563eb;
   --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
   --color-secondary: #64748b;
   --color-success: #10b981;
   --color-warning: #f59e0b;
@@ -20,6 +21,7 @@
   --color-text-muted: #64748b;
   --border-radius: 8px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
   --transition: all 0.2s ease-in-out;
 }
 
@@ -44,10 +46,13 @@ body {
 
 /* Header */
 .header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  color: white;
-  padding: 1.5rem 0;
-  box-shadow: var(--shadow);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .header .container {
@@ -59,23 +64,56 @@ body {
 }
 
 .header__title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.header__nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.header__user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
 }
 
 .header__controls {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-.user-info {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sync-status.synced {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+}
+
+.sync-status.syncing {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.sync-status.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
 }
 
 /* Buttons */
@@ -92,6 +130,8 @@ body {
   cursor: pointer;
   transition: var(--transition);
   white-space: nowrap;
+  text-align: center;
+  justify-content: center;
 }
 
 .btn:disabled {
@@ -104,24 +144,9 @@ body {
   font-size: 0.8rem;
 }
 
-.btn--secondary {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.btn--secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.btn--outline {
-  background: transparent;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn--outline:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+.btn--lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
 }
 
 .btn--primary {
@@ -130,32 +155,105 @@ body {
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--color-primary-light);
+  background: var(--color-primary-dark);
 }
 
-.btn--danger {
+.btn--secondary {
+  background: var(--color-secondary);
+  color: white;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: #475569;
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn--outline-danger {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+}
+
+.btn--outline-danger:hover:not(:disabled) {
   background: var(--color-danger);
   color: white;
 }
 
-.btn--danger:hover:not(:disabled) {
-  background: #dc2626;
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 0.5rem;
 }
 
-.btn-icon {
+.btn--ghost:hover:not(:disabled) {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Landing Page */
+.landing {
+  min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition);
+  padding: 4rem 0;
 }
 
-.btn-icon:hover {
-  background-color: var(--color-border);
+.landing__content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.landing__title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.landing__subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.landing__features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.feature {
+  text-align: center;
+}
+
+.feature__icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature__title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.feature__description {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
 }
 
 /* Auth Modal */
@@ -181,7 +279,7 @@ body {
   background: white;
   padding: 2rem;
   border-radius: var(--border-radius);
-  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 400px;
   margin: 1rem;
@@ -193,6 +291,7 @@ body {
   text-align: center;
   color: var(--color-text);
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .form-group {
@@ -204,6 +303,7 @@ body {
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--color-text);
+  font-size: 0.875rem;
 }
 
 .form-control {
@@ -225,20 +325,20 @@ body {
   color: var(--color-danger);
   font-size: 0.875rem;
   margin-top: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: rgba(239, 68, 68, 0.1);
   border-radius: var(--border-radius);
-  border-left: 4px solid var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .success {
   color: var(--color-success);
   font-size: 0.875rem;
   margin-top: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: rgba(16, 185, 129, 0.1);
   border-radius: var(--border-radius);
-  border-left: 4px solid var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .auth-switch {
@@ -247,6 +347,7 @@ body {
   font-size: 0.875rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .auth-switch button {
@@ -278,15 +379,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: var(--transition);
 }
 
 .close-modal:hover {
   background: var(--color-border);
 }
 
-/* Main Content */
+/* Main Content (Tracker) */
 .main {
   padding: 2rem 0;
+  min-height: calc(100vh - 200px);
 }
 
 /* Cards */
@@ -312,6 +415,7 @@ body {
   margin-bottom: 1rem;
   color: var(--color-text);
   font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .progress-bar-container {
@@ -370,7 +474,7 @@ body {
 }
 
 .topic-header:hover {
-  background-color: #f9fafb;
+  background-color: rgba(37, 99, 235, 0.02);
 }
 
 .topic-header__left {
@@ -388,6 +492,16 @@ body {
 
 .topic-toggle {
   color: var(--color-secondary);
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.topic-toggle:hover {
+  background: var(--color-border);
 }
 
 .topic-toggle[aria-expanded="true"] .chevron-icon {
@@ -439,6 +553,7 @@ body {
   stroke-dasharray: 113;
   stroke-dashoffset: 113;
   transition: stroke-dashoffset 0.3s ease;
+  fill: none;
 }
 
 .progress-text {
@@ -460,6 +575,7 @@ body {
 .topic-content {
   border-top: 1px solid var(--color-border);
   padding: 0;
+  display: none;
 }
 
 .subtopics-list {
@@ -477,7 +593,7 @@ body {
 }
 
 .subtopic-item:hover {
-  background-color: #fafbfc;
+  background-color: rgba(37, 99, 235, 0.02);
 }
 
 .subtopic-item.completed {
@@ -537,6 +653,7 @@ body {
 .subtopic-name {
   flex: 1;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .subtopic-comments {
@@ -552,6 +669,7 @@ body {
   font-size: 0.875rem;
   resize: vertical;
   transition: var(--transition);
+  font-family: inherit;
 }
 
 .subtopic-comments textarea:focus {
@@ -560,50 +678,12 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.text-muted {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-/* Loading state */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-text-muted);
-}
-
-.sync-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.sync-status.synced {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--color-success);
-}
-
-.sync-status.syncing {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--color-warning);
-}
-
-.sync-status.error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--color-danger);
-}
-
 /* Footer */
 .footer {
-  margin-top: 3rem;
-  padding-top: 2rem;
+  margin-top: 4rem;
+  padding: 2rem 0;
   border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .footer-content {
@@ -627,13 +707,21 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .landing__title {
+    font-size: 2rem;
+  }
+
+  .landing__subtitle {
+    font-size: 1rem;
+  }
+
   .header .container {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
 
-  .header__controls {
+  .header__nav {
     justify-content: center;
     flex-wrap: wrap;
   }
@@ -670,8 +758,18 @@ body {
     padding: 0 0.75rem;
   }
 
+  .landing {
+    padding: 2rem 0;
+  }
+
+  .landing__features {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
   .header__title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .card__header,
@@ -692,6 +790,18 @@ body {
     padding: 1.5rem;
   }
 }
+
+/* Loading Animation */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+/* Hidden utility */
+.hidden {
+  display: none !important;
+}
     </style>
 </head>
 <body>
@@ -709,12 +819,12 @@ body {
                     <label for="password">Password</label>
                     <input type="password" id="password" class="form-control" required placeholder="Enter your password">
                 </div>
-                <div class="form-group" id="nameGroup" style="display: none;">
+                <div class="form-group hidden" id="nameGroup">
                     <label for="fullName">Full Name</label>
                     <input type="text" id="fullName" class="form-control" placeholder="Enter your full name">
                 </div>
-                <div id="authError" class="error" style="display: none;"></div>
-                <div id="authSuccess" class="success" style="display: none;"></div>
+                <div id="authError" class="error hidden"></div>
+                <div id="authSuccess" class="success hidden"></div>
                 <div class="form-group">
                     <button type="submit" class="btn btn--primary" style="width: 100%;" id="authSubmit">
                         Sign In
@@ -730,95 +840,127 @@ body {
 
     <header class="header">
         <div class="container">
-            <h1 class="header__title">🚀 DevOps Preparation Tracker</h1>
-            <div class="header__controls">
-                <div class="sync-status synced" id="syncStatus">
-                    <span>●</span>
-                    <span>Ready</span>
+            <a href="#" class="header__title" id="homeLink">DevOps Tracker</a>
+            <nav class="header__nav">
+                <!-- Guest Navigation -->
+                <div class="header__guest" id="guestNav">
+                    <div class="header__controls">
+                        <button class="btn btn--outline btn--sm" id="signInBtn">Sign In</button>
+                        <button class="btn btn--primary btn--sm" id="signUpBtn">Sign Up</button>
+                    </div>
                 </div>
-                <div class="user-info" id="userInfo" style="display: none;">
-                    👤 <span id="userEmail"></span>
+
+                <!-- Authenticated Navigation -->
+                <div class="header__auth hidden" id="authNav">
+                    <div class="header__user-info">
+                        <div class="sync-status synced" id="syncStatus">
+                            <span>●</span>
+                            <span>Synced</span>
+                        </div>
+                        <span id="userEmail"></span>
+                    </div>
+                    <div class="header__controls">
+                        <button class="btn btn--ghost btn--sm" id="expandAllBtn">
+                            <span id="expandAllText">Expand All</span>
+                        </button>
+                        <button class="btn btn--outline btn--sm" id="exportBtn">Export</button>
+                        <button class="btn btn--outline-danger btn--sm" id="signOutBtn">Sign Out</button>
+                    </div>
                 </div>
-                <button class="btn btn--secondary btn--sm" id="expandAllBtn" style="display: none;">
-                    <span id="expandAllText">Expand All</span>
-                </button>
-                <button class="btn btn--outline btn--sm" id="exportBtn" style="display: none;">📊 Export Progress</button>
-                <button class="btn btn--outline btn--sm" id="signInBtn">🔐 Sign In</button>
-                <button class="btn btn--danger btn--sm" id="signOutBtn" style="display: none;">🚪 Sign Out</button>
-            </div>
+            </nav>
         </div>
     </header>
 
-    <main class="main">
-        <div class="container">
-            <!-- Welcome Section -->
-            <section class="welcome-section" id="welcomeSection">
-                <div class="card">
-                    <div class="card__body">
-                        <h2>👋 Welcome to DevOps Preparation Tracker</h2>
-                        <p style="margin-bottom: 1rem;">Track your DevOps interview preparation across 8 key technology areas with 80 comprehensive topics. Your progress is saved in the cloud and synced across all your devices.</p>
-                        <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
-                            ✅ Multi-user support with secure authentication<br>
-                            ✅ Cloud storage with automatic sync<br>
-                            ✅ Progress tracking across all devices<br>
-                            ✅ Private data for each user
-                        </p>
-                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                            <button class="btn btn--primary" id="getStartedBtn">🚀 Get Started</button>
-                            <button class="btn btn--outline" id="learnMoreBtn" style="color: var(--color-primary); border-color: var(--color-primary);">📖 Learn More</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Overall Progress Section -->
-            <section class="progress-overview" id="progressSection" style="display: none;">
-                <div class="card">
-                    <div class="card__body">
-                        <h2>📈 Overall Progress</h2>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar">
-                                <div class="progress-bar__fill" id="overallProgressFill"></div>
-                            </div>
-                            <span class="progress-percentage" id="overallProgressText">0%</span>
-                        </div>
-                        <div class="progress-stats">
-                            <span id="completedStats">0 of 80 topics completed</span>
-                            <span id="lastUpdated">Last updated: Never</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Search Section -->
-            <section class="search-section" id="searchSection" style="display: none;">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="searchInput" 
-                           placeholder="🔍 Search topics (e.g., Docker, Kubernetes, CI/CD...)">
-                </div>
-            </section>
-
-            <!-- Topics Section -->
-            <section class="topics-section" id="topicsSection" style="display: none;">
-                <div id="topicsContainer">
-                    <div class="loading">Loading DevOps topics...</div>
-                </div>
-            </section>
-
-            <!-- Footer -->
-            <footer class="footer">
-                <div class="footer-content">
-                    <p>💡 <strong>Multi-User DevOps Tracker:</strong> Your progress is automatically saved to the cloud and synced across devices!</p>
-                    <p class="footer-links">
-                        <a href="https://github.com" target="_blank">GitHub</a> •
-                        <a href="https://kubernetes.io/docs" target="_blank">Kubernetes Docs</a> •
-                        <a href="https://terraform.io/docs" target="_blank">Terraform Docs</a> •
-                        <a href="https://supabase.com" target="_blank">Powered by Supabase</a>
+    <main>
+        <!-- Landing Page -->
+        <section class="landing" id="landingSection">
+            <div class="container">
+                <div class="landing__content">
+                    <h1 class="landing__title">DevOps Preparation Tracker</h1>
+                    <p class="landing__subtitle">
+                        Master your DevOps interview preparation with a comprehensive tracking system 
+                        covering 8 key technology areas and 80+ essential topics.
                     </p>
+
+                    <div class="landing__features">
+                        <div class="feature">
+                            <div class="feature__icon">📊</div>
+                            <div class="feature__title">Progress Tracking</div>
+                            <div class="feature__description">Visual progress indicators and completion statistics</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature__icon">☁️</div>
+                            <div class="feature__title">Cloud Sync</div>
+                            <div class="feature__description">Your progress saved securely in the cloud</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature__icon">📱</div>
+                            <div class="feature__title">Multi-Device</div>
+                            <div class="feature__description">Access from anywhere, any device</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                        <button class="btn btn--primary btn--lg" id="getStartedBtn">Get Started</button>
+                        <button class="btn btn--outline btn--lg" id="learnMoreBtn">Learn More</button>
+                    </div>
                 </div>
-            </footer>
+            </div>
+        </section>
+
+        <!-- Tracker App -->
+        <div class="main hidden" id="trackerApp">
+            <div class="container">
+                <!-- Overall Progress Section -->
+                <section class="progress-overview">
+                    <div class="card">
+                        <div class="card__body">
+                            <h2>📈 Your Progress</h2>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar">
+                                    <div class="progress-bar__fill" id="overallProgressFill"></div>
+                                </div>
+                                <span class="progress-percentage" id="overallProgressText">0%</span>
+                            </div>
+                            <div class="progress-stats">
+                                <span id="completedStats">0 of 80 topics completed</span>
+                                <span id="lastUpdated">Last updated: Never</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Search Section -->
+                <section class="search-section">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="🔍 Search topics (e.g., Docker, Kubernetes, CI/CD...)">
+                    </div>
+                </section>
+
+                <!-- Topics Section -->
+                <section class="topics-section">
+                    <div id="topicsContainer">
+                        <div class="loading">Loading DevOps topics...</div>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 DevOps Preparation Tracker. Built for the DevOps community.</p>
+                <p class="footer-links">
+                    <a href="https://github.com" target="_blank">GitHub</a> •
+                    <a href="https://kubernetes.io/docs" target="_blank">Kubernetes Docs</a> •
+                    <a href="https://terraform.io/docs" target="_blank">Terraform Docs</a>
+                </p>
+            </div>
+        </div>
+    </footer>
 
     <script>
 // Supabase configuration - REPLACE WITH YOUR ACTUAL VALUES
@@ -839,12 +981,13 @@ if (!DEMO_MODE) {
     }
 }
 
-// DevOps Preparation Tracker with Supabase Integration
+// DevOps Preparation Tracker
 class DevOpsTracker {
     constructor() {
         this.user = null;
         this.isSignUp = false;
         this.demoMode = DEMO_MODE;
+        this.allExpanded = false;
 
         this.data = {
             "topics": [
@@ -987,19 +1130,17 @@ class DevOpsTracker {
             ]
         };
 
-        this.allExpanded = false;
-
-        console.log('DevOps Tracker initialized in', this.demoMode ? 'DEMO MODE' : 'PRODUCTION MODE');
+        console.log('DevOps Tracker initialized');
         this.init();
     }
 
     async init() {
         console.log('Initializing tracker...');
 
-        if (this.demoMode) {
-            this.initDemoMode();
-        } else {
+        if (!this.demoMode && supabase) {
             await this.checkAuthState();
+        } else {
+            this.showLandingPage();
         }
 
         this.bindEvents();
@@ -1007,58 +1148,13 @@ class DevOpsTracker {
         console.log('Tracker initialized successfully');
     }
 
-    initDemoMode() {
-        console.log('Running in demo mode - configure Supabase credentials for full functionality');
-        this.setSyncStatus('error', 'Demo Mode');
-        this.showWelcomeScreen();
-
-        // Show demo notification in welcome section
-        const welcomeSection = document.getElementById('welcomeSection');
-        welcomeSection.innerHTML = `
-            <div class="card">
-                <div class="card__body">
-                    <h2>⚙️ Configuration Required</h2>
-                    <p style="margin-bottom: 1rem;">To enable multi-user authentication and cloud storage, please configure your Supabase credentials:</p>
-                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-family: monospace; font-size: 0.9rem;">
-                        <p><strong>1. Update these values in the code:</strong></p>
-                        <p style="color: #dc2626;">SUPABASE_URL = 'your-project-url'</p>
-                        <p style="color: #dc2626;">SUPABASE_ANON_KEY = 'your-anon-key'</p>
-                    </div>
-                    <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
-                        📖 <strong>Setup Instructions:</strong> Follow the complete setup guide to create your Supabase project and configure authentication.
-                    </p>
-                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                        <button class="btn btn--primary" id="tryDemoBtn">📱 Try Demo Mode</button>
-                        <button class="btn btn--outline" style="color: var(--color-primary); border-color: var(--color-primary);">📖 View Setup Guide</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Add demo mode functionality
-        document.getElementById('tryDemoBtn').addEventListener('click', () => {
-            this.startDemoMode();
-        });
-    }
-
-    startDemoMode() {
-        console.log('Starting demo mode...');
-        this.user = { email: 'demo@example.com', id: 'demo-user' };
-        this.showMainInterface();
-        this.updateUI();
-        this.renderTopics();
-        this.updateProgress();
-        this.setSyncStatus('syncing', 'Demo Mode');
-    }
-
     async checkAuthState() {
-        if (!supabase) return;
-
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
 
             if (error) {
                 console.error('Error getting session:', error);
+                this.showLandingPage();
                 return;
             }
 
@@ -1068,7 +1164,7 @@ class DevOpsTracker {
                 await this.onUserSignedIn();
             } else {
                 console.log('No user session found');
-                this.showWelcomeScreen();
+                this.showLandingPage();
             }
 
             // Listen for auth changes
@@ -1086,66 +1182,60 @@ class DevOpsTracker {
 
         } catch (error) {
             console.error('Error checking auth state:', error);
+            this.showLandingPage();
         }
     }
 
     async onUserSignedIn() {
-        console.log('User signed in, loading progress...');
+        console.log('User signed in, loading app...');
         this.hideAuthModal();
-        this.showMainInterface();
-        this.updateUI();
-        await this.loadProgressFromDatabase();
+        this.showTrackerApp();
+        this.updateNavigation();
+
+        if (!this.demoMode) {
+            await this.loadProgressFromDatabase();
+        }
+
         this.renderTopics();
         this.updateProgress();
     }
 
     onUserSignedOut() {
         console.log('User signed out');
-        this.showWelcomeScreen();
-        this.updateUI();
+        this.showLandingPage();
+        this.updateNavigation();
         this.setSyncStatus('synced', 'Ready');
     }
 
-    showWelcomeScreen() {
-        document.getElementById('welcomeSection').style.display = 'block';
-        document.getElementById('progressSection').style.display = 'none';
-        document.getElementById('searchSection').style.display = 'none';
-        document.getElementById('topicsSection').style.display = 'none';
+    showLandingPage() {
+        document.getElementById('landingSection').classList.remove('hidden');
+        document.getElementById('trackerApp').classList.add('hidden');
+        this.updateNavigation();
     }
 
-    showMainInterface() {
-        document.getElementById('welcomeSection').style.display = 'none';
-        document.getElementById('progressSection').style.display = 'block';
-        document.getElementById('searchSection').style.display = 'block';
-        document.getElementById('topicsSection').style.display = 'block';
+    showTrackerApp() {
+        document.getElementById('landingSection').classList.add('hidden');
+        document.getElementById('trackerApp').classList.remove('hidden');
+        this.updateNavigation();
     }
 
-    updateUI() {
-        const userInfo = document.getElementById('userInfo');
+    updateNavigation() {
+        const guestNav = document.getElementById('guestNav');
+        const authNav = document.getElementById('authNav');
         const userEmail = document.getElementById('userEmail');
-        const signInBtn = document.getElementById('signInBtn');
-        const signOutBtn = document.getElementById('signOutBtn');
-        const expandAllBtn = document.getElementById('expandAllBtn');
-        const exportBtn = document.getElementById('exportBtn');
 
         if (this.user) {
-            userInfo.style.display = 'block';
+            guestNav.classList.add('hidden');
+            authNav.classList.remove('hidden');
             userEmail.textContent = this.user.email;
-            signInBtn.style.display = 'none';
-            signOutBtn.style.display = 'inline-flex';
-            expandAllBtn.style.display = 'inline-flex';
-            exportBtn.style.display = 'inline-flex';
         } else {
-            userInfo.style.display = 'none';
-            signInBtn.style.display = 'inline-flex';
-            signOutBtn.style.display = 'none';
-            expandAllBtn.style.display = 'none';
-            exportBtn.style.display = 'none';
+            guestNav.classList.remove('hidden');
+            authNav.classList.add('hidden');
         }
     }
 
     async loadProgressFromDatabase() {
-        if (!this.user || !supabase || this.demoMode) return;
+        if (!this.user || !supabase) return;
 
         this.setSyncStatus('syncing', 'Loading...');
 
@@ -1156,7 +1246,7 @@ class DevOpsTracker {
                 .eq('user_id', this.user.id)
                 .single();
 
-            if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+            if (error && error.code !== 'PGRST116') {
                 console.error('Error loading progress:', error);
                 this.setSyncStatus('error', 'Load failed');
                 return;
@@ -1178,7 +1268,7 @@ class DevOpsTracker {
     }
 
     async saveProgressToDatabase() {
-        if (!this.user || !supabase || this.demoMode) return;
+        if (!this.user || !supabase) return;
 
         this.setSyncStatus('syncing', 'Saving...');
 
@@ -1208,67 +1298,73 @@ class DevOpsTracker {
 
     setSyncStatus(status, text) {
         const syncStatus = document.getElementById('syncStatus');
-        syncStatus.className = `sync-status ${status}`;
-        syncStatus.innerHTML = `<span>●</span><span>${text}</span>`;
+        if (syncStatus) {
+            syncStatus.className = `sync-status ${status}`;
+            syncStatus.innerHTML = `<span>●</span><span>${text}</span>`;
+        }
     }
 
     bindAuthEvents() {
-        const authForm = document.getElementById('authForm');
-        const authSwitchBtn = document.getElementById('authSwitchBtn');
-        const signInBtn = document.getElementById('signInBtn');
-        const signOutBtn = document.getElementById('signOutBtn');
-        const getStartedBtn = document.getElementById('getStartedBtn');
-        const learnMoreBtn = document.getElementById('learnMoreBtn');
-        const closeModal = document.getElementById('closeModal');
-
         // Form submission
-        authForm.addEventListener('submit', (e) => {
+        document.getElementById('authForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleAuth(e);
         });
 
-        // Switch between sign in / sign up
-        authSwitchBtn.addEventListener('click', (e) => {
+        // Auth mode switching
+        document.getElementById('authSwitchBtn').addEventListener('click', (e) => {
             e.preventDefault();
             this.toggleAuthMode();
         });
 
-        // Show modal buttons
-        signInBtn.addEventListener('click', (e) => {
+        // Show auth modal buttons
+        document.getElementById('signInBtn').addEventListener('click', (e) => {
             e.preventDefault();
-            this.showAuthModal();
+            this.showAuthModal('signin');
         });
 
-        getStartedBtn.addEventListener('click', (e) => {
+        document.getElementById('signUpBtn').addEventListener('click', (e) => {
             e.preventDefault();
-            this.showAuthModal();
+            this.showAuthModal('signup');
         });
 
-        if (learnMoreBtn) {
-            learnMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('DevOps Preparation Tracker helps you systematically prepare for DevOps interviews across 8 key technology areas with progress tracking and cloud sync.');
-            });
-        }
+        document.getElementById('getStartedBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showAuthModal('signup');
+        });
+
+        document.getElementById('learnMoreBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('DevOps Preparation Tracker helps you systematically prepare for DevOps interviews across 8 key technology areas: Terraform, Linux, Kubernetes, Jenkins, GitHub, GitLab, ArgoCD, and Networking. Track your progress with 80+ comprehensive topics, save notes, and sync across devices.');
+        });
 
         // Sign out
-        signOutBtn.addEventListener('click', (e) => {
+        document.getElementById('signOutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             this.signOut();
         });
 
         // Close modal
-        closeModal.addEventListener('click', (e) => {
+        document.getElementById('closeModal').addEventListener('click', (e) => {
             e.preventDefault();
             this.hideAuthModal();
         });
+
+        // Home link
+        document.getElementById('homeLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (this.user) {
+                this.showTrackerApp();
+            } else {
+                this.showLandingPage();
+            }
+        });
     }
 
-    showAuthModal() {
-        if (this.demoMode) {
-            this.startDemoMode();
-            return;
-        }
+    showAuthModal(mode = 'signin') {
+        // Set initial mode
+        this.isSignUp = mode === 'signup';
+        this.updateAuthModalMode();
 
         const modal = document.getElementById('authModal');
         modal.classList.remove('hidden');
@@ -1287,43 +1383,54 @@ class DevOpsTracker {
 
     toggleAuthMode() {
         this.isSignUp = !this.isSignUp;
-        console.log('Toggling auth mode to:', this.isSignUp ? 'Sign Up' : 'Sign In');
+        this.updateAuthModalMode();
+        this.clearAuthMessages();
+    }
 
+    updateAuthModalMode() {
         const authTitle = document.getElementById('authTitle');
         const authSubmit = document.getElementById('authSubmit');
         const authSwitchText = document.getElementById('authSwitchText');
         const authSwitchBtn = document.getElementById('authSwitchBtn');
         const nameGroup = document.getElementById('nameGroup');
+        const fullName = document.getElementById('fullName');
 
         if (this.isSignUp) {
             authTitle.textContent = 'Create Account';
             authSubmit.textContent = 'Sign Up';
             authSwitchText.textContent = 'Already have an account?';
             authSwitchBtn.textContent = 'Sign In';
-            nameGroup.style.display = 'block';
-            document.getElementById('fullName').setAttribute('required', 'required');
+            nameGroup.classList.remove('hidden');
+            fullName.setAttribute('required', 'required');
         } else {
             authTitle.textContent = 'Welcome Back';
             authSubmit.textContent = 'Sign In';
             authSwitchText.textContent = "Don't have an account?";
             authSwitchBtn.textContent = 'Sign Up';
-            nameGroup.style.display = 'none';
-            document.getElementById('fullName').removeAttribute('required');
+            nameGroup.classList.add('hidden');
+            fullName.removeAttribute('required');
         }
-
-        this.clearAuthMessages();
     }
 
     async handleAuth(e) {
         e.preventDefault();
 
+        // Demo mode - simulate authentication
         if (this.demoMode) {
-            this.startDemoMode();
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                this.showAuthMessage('error', 'Please enter an email address');
+                return;
+            }
+
+            // Simulate user login
+            this.user = { email: email, id: 'demo-user-' + Date.now() };
+            await this.onUserSignedIn();
             return;
         }
 
         if (!supabase) {
-            this.showAuthMessage('error', 'Supabase not configured properly');
+            this.showAuthMessage('error', 'Authentication service not available');
             return;
         }
 
@@ -1331,7 +1438,7 @@ class DevOpsTracker {
         const password = document.getElementById('password').value;
         const fullName = document.getElementById('fullName').value.trim();
 
-        // Basic validation
+        // Validation
         if (!email || !password) {
             this.showAuthMessage('error', 'Please fill in all required fields');
             return;
@@ -1371,10 +1478,8 @@ class DevOpsTracker {
 
                 if (data?.user && !data.session) {
                     this.showAuthMessage('success', 'Account created! Please check your email for the verification link.');
-                    console.log('Sign up successful, verification email sent');
                     return;
                 } else if (data?.session) {
-                    console.log('Sign up successful with immediate session');
                     this.showAuthMessage('success', 'Account created successfully!');
                 }
             } else {
@@ -1385,7 +1490,6 @@ class DevOpsTracker {
                 });
 
                 if (error) throw error;
-
                 console.log('Sign in successful');
             }
 
@@ -1393,7 +1497,6 @@ class DevOpsTracker {
             console.error('Auth error:', error);
             let errorMessage = error.message;
 
-            // Provide user-friendly error messages
             if (errorMessage.includes('Invalid login credentials')) {
                 errorMessage = 'Invalid email or password. Please check your credentials.';
             } else if (errorMessage.includes('Email not confirmed')) {
@@ -1410,22 +1513,24 @@ class DevOpsTracker {
     }
 
     async signOut() {
-        if (this.demoMode) {
+        console.log('Signing out user...');
+
+        // Demo mode
+        if (this.demoMode || !supabase) {
             this.user = null;
             this.onUserSignedOut();
             return;
         }
-
-        if (!supabase) return;
 
         try {
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
 
             console.log('User signed out successfully');
+            // Auth state change will be handled by the listener
         } catch (error) {
             console.error('Error signing out:', error);
-            this.showAuthMessage('error', 'Failed to sign out. Please try again.');
+            alert('Failed to sign out. Please try again.');
         }
     }
 
@@ -1435,12 +1540,12 @@ class DevOpsTracker {
 
         if (type === 'error') {
             errorEl.textContent = message;
-            errorEl.style.display = 'block';
-            successEl.style.display = 'none';
+            errorEl.classList.remove('hidden');
+            successEl.classList.add('hidden');
         } else {
             successEl.textContent = message;
-            successEl.style.display = 'block';
-            errorEl.style.display = 'none';
+            successEl.classList.remove('hidden');
+            errorEl.classList.add('hidden');
         }
     }
 
@@ -1449,8 +1554,8 @@ class DevOpsTracker {
         const successEl = document.getElementById('authSuccess');
         errorEl.textContent = '';
         successEl.textContent = '';
-        errorEl.style.display = 'none';
-        successEl.style.display = 'none';
+        errorEl.classList.add('hidden');
+        successEl.classList.add('hidden');
     }
 
     clearAuthForm() {
@@ -1495,8 +1600,6 @@ class DevOpsTracker {
     }
 
     renderTopics() {
-        if (!this.user) return;
-
         console.log('Rendering topics...');
         const container = document.getElementById('topicsContainer');
         if (!container) {
@@ -1506,7 +1609,7 @@ class DevOpsTracker {
 
         container.innerHTML = '';
 
-        this.data.topics.forEach((topic, index) => {
+        this.data.topics.forEach((topic) => {
             const completedCount = topic.subtopics.filter(st => st.completed).length;
             const totalCount = topic.subtopics.length;
             const percentage = Math.round((completedCount / totalCount) * 100);
@@ -1519,8 +1622,8 @@ class DevOpsTracker {
                 <div class="card">
                     <div class="card__header topic-header" data-topic="${topic.id}">
                         <div class="topic-header__left">
-                            <button class="btn-icon topic-toggle" aria-expanded="false">
-                                <svg class="icon icon--sm chevron-icon" viewBox="0 0 24 24" fill="none">
+                            <button class="topic-toggle" aria-expanded="false">
+                                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none">
                                     <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
@@ -1542,7 +1645,7 @@ class DevOpsTracker {
                             </div>
                         </div>
                     </div>
-                    <div class="card__body topic-content" style="display: none;">
+                    <div class="card__body topic-content">
                         <div class="subtopics-list">
                             ${topic.subtopics.map(subtopic => `
                                 <div class="subtopic-item ${subtopic.completed ? 'completed' : ''}" data-subtopic-id="${subtopic.id}">
@@ -1573,8 +1676,6 @@ class DevOpsTracker {
     }
 
     bindTopicEvents() {
-        if (!this.user) return;
-
         // Topic toggle functionality
         document.querySelectorAll('.topic-header').forEach(header => {
             header.addEventListener('click', (e) => {
@@ -1608,21 +1709,18 @@ class DevOpsTracker {
         const topicElement = document.querySelector(`[data-topic-id="${topicId}"]`);
         const content = topicElement.querySelector('.topic-content');
         const toggle = topicElement.querySelector('.topic-toggle');
-        const isExpanded = content.style.display !== 'none';
+        const isExpanded = content.style.display === 'block';
 
         if (isExpanded) {
             content.style.display = 'none';
             toggle.setAttribute('aria-expanded', 'false');
-            topicElement.classList.remove('expanded');
         } else {
             content.style.display = 'block';
             toggle.setAttribute('aria-expanded', 'true');
-            topicElement.classList.add('expanded');
         }
     }
 
     toggleAllTopics() {
-        const expandAllBtn = document.getElementById('expandAllBtn');
         const expandAllText = document.getElementById('expandAllText');
 
         this.allExpanded = !this.allExpanded;
@@ -1634,11 +1732,9 @@ class DevOpsTracker {
             if (this.allExpanded) {
                 content.style.display = 'block';
                 toggle.setAttribute('aria-expanded', 'true');
-                topicElement.classList.add('expanded');
             } else {
                 content.style.display = 'none';
                 toggle.setAttribute('aria-expanded', 'false');
-                topicElement.classList.remove('expanded');
             }
         });
 
@@ -1660,7 +1756,10 @@ class DevOpsTracker {
         }
 
         this.updateProgress();
-        await this.saveProgressToDatabase();
+
+        if (!this.demoMode) {
+            await this.saveProgressToDatabase();
+        }
     }
 
     async updateSubtopicComment(topicId, subtopicId, comment) {
@@ -1668,12 +1767,13 @@ class DevOpsTracker {
         const subtopic = topic.subtopics.find(st => st.id === subtopicId);
 
         subtopic.comments = comment;
-        await this.saveProgressToDatabase();
+
+        if (!this.demoMode) {
+            await this.saveProgressToDatabase();
+        }
     }
 
     updateProgress() {
-        if (!this.user) return;
-
         const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
         const completedSubtopics = this.data.topics.reduce((sum, topic) => 
             sum + topic.subtopics.filter(st => st.completed).length, 0);
@@ -1703,17 +1803,17 @@ class DevOpsTracker {
                 const text = progressCircle.querySelector('.progress-text');
                 const stats = progressCircle.parentElement.querySelector('.progress-stats-small');
 
-                progressCircle.setAttribute('data-percentage', percentage);
+                if (circle && text && stats) {
+                    const radius = 18;
+                    const circumference = radius * 2 * Math.PI;
+                    const offset = circumference - (percentage / 100) * circumference;
 
-                const radius = circle.r.baseVal.value;
-                const circumference = radius * 2 * Math.PI;
-                const offset = circumference - (percentage / 100) * circumference;
+                    circle.style.strokeDasharray = circumference;
+                    circle.style.strokeDashoffset = offset;
 
-                circle.style.strokeDasharray = circumference;
-                circle.style.strokeDashoffset = offset;
-
-                if (text) text.textContent = `${percentage}%`;
-                if (stats) stats.textContent = `${completedCount}/${totalCount}`;
+                    text.textContent = `${percentage}%`;
+                    stats.textContent = `${completedCount}/${totalCount}`;
+                }
             }
         });
     }
@@ -1737,7 +1837,6 @@ class DevOpsTracker {
                     const toggle = topicElement.querySelector('.topic-toggle');
                     content.style.display = 'block';
                     toggle.setAttribute('aria-expanded', 'true');
-                    topicElement.classList.add('expanded');
                 }
             } else {
                 topicElement.style.display = 'none';
@@ -1787,7 +1886,7 @@ class DevOpsTracker {
     }
 }
 
-// Initialize the application when DOM is loaded
+// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing DevOps Tracker...');
 
@@ -1795,12 +1894,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.tracker = new DevOpsTracker();
     } catch (error) {
         console.error('Failed to initialize DevOps Tracker:', error);
-        const container = document.getElementById('topicsContainer') || document.body;
-        container.innerHTML = `
-            <div style="background: #fee; border: 1px solid #fcc; padding: 1rem; border-radius: 8px; margin: 1rem;">
-                <h3>❌ Initialization Failed</h3>
-                <p>Failed to load DevOps Tracker. Please check the browser console for details.</p>
-                <p><strong>Error:</strong> ${error.message}</p>
+        document.body.innerHTML = `
+            <div style="padding: 2rem; text-align: center;">
+                <h2>❌ Failed to Load</h2>
+                <p>DevOps Tracker failed to initialize. Please refresh the page.</p>
+                <p style="color: #dc2626; font-size: 0.9rem;">${error.message}</p>
             </div>
         `;
     }
