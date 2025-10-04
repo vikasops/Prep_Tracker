@@ -4,8 +4,535 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Preparation Tracker</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <style>
+:root {
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-secondary: #64748b;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --border-radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --transition: all 0.2s ease-in-out;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  padding: 1.5rem 0;
+  box-shadow: var(--shadow);
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header__controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn--sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.btn--secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.btn--outline {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn--outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-icon:hover {
+  background-color: var(--color-border);
+}
+
+/* Main Content */
+.main {
+  padding: 2rem 0;
+}
+
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.card__header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card__body {
+  padding: 1.25rem;
+}
+
+/* Progress Overview */
+.progress-overview h2 {
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12px;
+  background-color: var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-success) 0%, var(--color-primary) 100%);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.progress-percentage {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  min-width: 4rem;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Search */
+.search-section {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Topic Sections */
+.topic-section {
+  margin-bottom: 1rem;
+}
+
+.topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 1rem 1.25rem;
+}
+
+.topic-header:hover {
+  background-color: #f9fafb;
+}
+
+.topic-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.topic-header__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topic-toggle {
+  color: var(--color-secondary);
+}
+
+.topic-toggle[aria-expanded="true"] .chevron-icon {
+  transform: rotate(90deg);
+}
+
+.chevron-icon {
+  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+}
+
+.topic-info {
+  flex: 1;
+}
+
+.topic-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+.topic-description {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.progress-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.progress-circle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring__circle {
+  stroke: var(--color-primary);
+  stroke-dasharray: 113;
+  stroke-dashoffset: 113;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.progress-stats-small {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Topic Content */
+.topic-content {
+  border-top: 1px solid var(--color-border);
+  padding: 0;
+}
+
+.subtopics-list {
+  padding: 0;
+}
+
+.subtopic-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: var(--transition);
+}
+
+.subtopic-item:last-child {
+  border-bottom: none;
+}
+
+.subtopic-item:hover {
+  background-color: #fafbfc;
+}
+
+.subtopic-item.completed {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.subtopic-item.completed .subtopic-name {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.subtopic-header {
+  margin-bottom: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-surface);
+  transition: var(--transition);
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.subtopic-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.subtopic-comments {
+  margin-left: 2.5rem;
+}
+
+.subtopic-comments textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: var(--transition);
+}
+
+.subtopic-comments textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Footer */
+.footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.footer-content {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.footer-content p {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+/* Error state */
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header__controls {
+    justify-content: center;
+  }
+
+  .topic-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .topic-header__right {
+    justify-content: center;
+  }
+
+  .progress-bar-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .progress-percentage {
+    text-align: center;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  .header__title {
+    font-size: 1.5rem;
+  }
+
+  .card__header,
+  .card__body {
+    padding: 1rem;
+  }
+
+  .subtopic-item {
+    padding: 0.75rem 1rem;
+  }
+
+  .subtopic-comments {
+    margin-left: 1.75rem;
+  }
+}
+    </style>
 </head>
 <body>
     <header class="header">
@@ -53,7 +580,7 @@
             <!-- Topics Section -->
             <section class="topics-section">
                 <div id="topicsContainer">
-                    <!-- Topics will be dynamically generated here -->
+                    <div class="loading">Loading DevOps topics...</div>
                 </div>
             </section>
 
@@ -71,6 +598,594 @@
         </div>
     </main>
 
-    <script src="app-persistent.js"></script>
+    <script>
+// DevOps Preparation Tracker Application with localStorage support
+class DevOpsTracker {
+    constructor() {
+        this.storageKey = 'devops-tracker-data';
+        this.data = this.loadFromStorage() || {
+            "topics": [
+                {
+                    "id": "terraform",
+                    "name": "Terraform",
+                    "description": "Infrastructure as Code with Terraform",
+                    "subtopics": [
+                        {"id": "terraform-basics", "name": "Terraform Basics & Architecture", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "iac-concepts", "name": "Infrastructure as Code (IaC) Concepts", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "terraform-commands", "name": "Terraform Commands & CLI", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "state-management", "name": "State Management & Remote State", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "terraform-modules", "name": "Modules & Module Development", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "variables-datasources", "name": "Variables & Data Sources", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "providers", "name": "Providers & Provider Configuration", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "workspaces", "name": "Terraform Workspaces", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "terraform-security", "name": "Best Practices & Security", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "terraform-scenarios", "name": "Scenario-Based Questions", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "linux", 
+                    "name": "Linux",
+                    "description": "Linux System Administration & Operations",
+                    "subtopics": [
+                        {"id": "linux-fundamentals", "name": "Linux Fundamentals & Architecture", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "file-system", "name": "File System & Directory Structure", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "command-line", "name": "Command Line & Shell Scripting", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "process-management", "name": "Process Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "system-admin", "name": "System Administration", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "network-config", "name": "Network Configuration", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "security-permissions", "name": "Security & Permissions", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "package-management", "name": "Package Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "system-monitoring", "name": "System Monitoring & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "performance-tuning", "name": "Performance Tuning", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "kubernetes",
+                    "name": "Kubernetes", 
+                    "description": "Container Orchestration with Kubernetes",
+                    "subtopics": [
+                        {"id": "k8s-architecture", "name": "Kubernetes Architecture & Components", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "pods-deployments", "name": "Pods, Deployments & Services", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "configmaps-secrets", "name": "ConfigMaps & Secrets", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "storage-pv", "name": "Storage & Persistent Volumes", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "k8s-networking", "name": "Networking & Ingress", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "rbac-security", "name": "RBAC & Security", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "monitoring-logging", "name": "Monitoring & Logging", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "helm", "name": "Helm & Package Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "k8s-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "k8s-best-practices", "name": "Best Practices & Scenarios", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "jenkins",
+                    "name": "Jenkins",
+                    "description": "CI/CD Automation with Jenkins", 
+                    "subtopics": [
+                        {"id": "jenkins-architecture", "name": "Jenkins Architecture & Setup", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "pipeline-development", "name": "Pipeline Development (Declarative & Scripted)", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "plugin-management", "name": "Plugin Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "build-deployment", "name": "Build & Deployment Automation", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "jenkins-security", "name": "Security & User Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "master-slave", "name": "Master-Slave Configuration", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "git-integration", "name": "Integration with Git & SCM", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "docker-k8s-integration", "name": "Docker & Kubernetes Integration", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "jenkins-monitoring", "name": "Monitoring & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "jenkins-best-practices", "name": "Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "github",
+                    "name": "GitHub",
+                    "description": "Version Control & GitHub Workflows",
+                    "subtopics": [
+                        {"id": "git-fundamentals", "name": "Git Fundamentals & Commands", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "branching-merging", "name": "Branching & Merging Strategies", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "github-actions", "name": "GitHub Actions & Workflows", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "pull-requests", "name": "Pull Requests & Code Review", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "repo-management", "name": "Repository Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "github-security", "name": "GitHub Security Features", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "api-integrations", "name": "API & Integrations", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "team-collaboration", "name": "Collaboration & Team Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "advanced-git", "name": "Advanced Git Operations", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "git-best-practices", "name": "Best Practices & Troubleshooting", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "gitlab",
+                    "name": "GitLab", 
+                    "description": "GitLab CI/CD & DevOps Platform",
+                    "subtopics": [
+                        {"id": "gitlab-architecture", "name": "GitLab Architecture & Setup", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-cicd", "name": "GitLab CI/CD Pipelines", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "runners-jobs", "name": "Runners & Job Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-security", "name": "Security & Access Control", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "container-registry", "name": "Container Registry", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-monitoring", "name": "Monitoring & Analytics", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-api", "name": "API & Integrations", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "multi-project", "name": "Multi-project Pipelines", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-vs-github", "name": "GitLab vs GitHub Comparison", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "gitlab-best-practices", "name": "Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "argocd",
+                    "name": "ArgoCD",
+                    "description": "GitOps Continuous Delivery with ArgoCD",
+                    "subtopics": [
+                        {"id": "gitops-principles", "name": "GitOps Principles & Concepts", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "argocd-architecture", "name": "ArgoCD Architecture & Components", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "app-deployment", "name": "Application Deployment & Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "sync-strategies", "name": "Sync Strategies & Policies", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "multi-cluster", "name": "Multi-cluster Management", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "argocd-rbac", "name": "RBAC & Security", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "argocd-monitoring", "name": "Monitoring & Observability", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "argocd-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "cicd-integration", "name": "Integration with CI/CD", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "argocd-scenarios", "name": "Best Practices & Scenarios", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                },
+                {
+                    "id": "networking",
+                    "name": "Networking",
+                    "description": "Network Fundamentals for DevOps",
+                    "subtopics": [
+                        {"id": "osi-tcpip", "name": "OSI & TCP/IP Model", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "ip-subnetting", "name": "IP Addressing & Subnetting", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "dns-dhcp", "name": "DNS & DHCP", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "routing-switching", "name": "Routing & Switching", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "load-balancing", "name": "Load Balancing & Proxies", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "firewalls", "name": "Firewalls & Security", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "cloud-networking", "name": "Cloud Networking (VPC, Subnets)", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "container-networking", "name": "Container Networking", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "network-troubleshooting", "name": "Troubleshooting Tools", "completed": false, "comments": "", "lastUpdated": null},
+                        {"id": "network-security", "name": "Network Security & Best Practices", "completed": false, "comments": "", "lastUpdated": null}
+                    ]
+                }
+            ],
+            "settings": {
+                "createdDate": new Date().toISOString(),
+                "lastModified": new Date().toISOString()
+            }
+        };
+
+        this.allExpanded = false;
+        console.log('DevOps Tracker initialized with data:', this.data);
+        this.init();
+    }
+
+    // localStorage methods
+    loadFromStorage() {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            console.log('Loading data from storage:', stored ? 'Data found' : 'No data found');
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            console.error('Error loading data from localStorage:', error);
+            return null;
+        }
+    }
+
+    saveToStorage() {
+        try {
+            this.data.settings.lastModified = new Date().toISOString();
+            localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+            this.updateLastUpdatedDisplay();
+            console.log('Data saved to storage');
+        } catch (error) {
+            console.error('Error saving data to localStorage:', error);
+        }
+    }
+
+    clearStorage() {
+        try {
+            localStorage.removeItem(this.storageKey);
+            console.log('Storage cleared');
+        } catch (error) {
+            console.error('Error clearing localStorage:', error);
+        }
+    }
+
+    init() {
+        console.log('Initializing tracker...');
+        try {
+            this.renderTopics();
+            this.updateProgress();
+            this.bindEvents();
+            this.updateLastUpdatedDisplay();
+            console.log('Tracker initialized successfully');
+        } catch (error) {
+            console.error('Error during initialization:', error);
+            this.showError('Failed to initialize tracker: ' + error.message);
+        }
+    }
+
+    showError(message) {
+        const container = document.getElementById('topicsContainer');
+        container.innerHTML = `<div class="error">Error: ${message}</div>`;
+    }
+
+    bindEvents() {
+        console.log('Binding events...');
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterTopics(e.target.value);
+            });
+        }
+
+        // Expand/Collapse all
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        if (expandAllBtn) {
+            expandAllBtn.addEventListener('click', () => {
+                this.toggleAllTopics();
+            });
+        }
+
+        // Export progress
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportProgress();
+            });
+        }
+
+        // Reset all data
+        const resetBtn = document.getElementById('resetBtn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetAllData();
+            });
+        }
+    }
+
+    renderTopics() {
+        console.log('Rendering topics...');
+        const container = document.getElementById('topicsContainer');
+        if (!container) {
+            console.error('Topics container not found');
+            return;
+        }
+
+        if (!this.data.topics || !Array.isArray(this.data.topics)) {
+            console.error('No topics data found');
+            container.innerHTML = '<div class="error">No topics data available</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+
+        this.data.topics.forEach((topic, index) => {
+            console.log(`Rendering topic: ${topic.name}`);
+
+            const completedCount = topic.subtopics.filter(st => st.completed).length;
+            const totalCount = topic.subtopics.length;
+            const percentage = Math.round((completedCount / totalCount) * 100);
+
+            const topicElement = document.createElement('div');
+            topicElement.className = 'topic-section';
+            topicElement.setAttribute('data-topic-id', topic.id);
+
+            topicElement.innerHTML = `
+                <div class="card">
+                    <div class="card__header topic-header" data-topic="${topic.id}">
+                        <div class="topic-header__left">
+                            <button class="btn-icon topic-toggle" aria-expanded="false">
+                                <svg class="icon icon--sm chevron-icon" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="topic-info">
+                                <h3 class="topic-title">${topic.name}</h3>
+                                <p class="topic-description">${topic.description}</p>
+                            </div>
+                        </div>
+                        <div class="topic-header__right">
+                            <div class="progress-indicator">
+                                <div class="progress-circle" data-percentage="${percentage}">
+                                    <svg class="progress-ring" width="40" height="40">
+                                        <circle class="progress-ring__circle" stroke="currentColor" stroke-width="3" 
+                                                fill="transparent" r="18" cx="20" cy="20"/>
+                                    </svg>
+                                    <span class="progress-text">${percentage}%</span>
+                                </div>
+                                <span class="progress-stats-small">${completedCount}/${totalCount}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card__body topic-content" style="display: none;">
+                        <div class="subtopics-list">
+                            ${topic.subtopics.map(subtopic => `
+                                <div class="subtopic-item ${subtopic.completed ? 'completed' : ''}" data-subtopic-id="${subtopic.id}">
+                                    <div class="subtopic-header">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" ${subtopic.completed ? 'checked' : ''} 
+                                                   data-topic="${topic.id}" data-subtopic="${subtopic.id}">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="subtopic-name">${subtopic.name}</span>
+                                        </label>
+                                    </div>
+                                    <div class="subtopic-comments">
+                                        <textarea class="form-control" placeholder="Add your notes and comments here..." 
+                                                  data-topic="${topic.id}" data-subtopic="${subtopic.id}">${subtopic.comments || ''}</textarea>
+                                        ${subtopic.lastUpdated ? `<small class="text-muted">Last updated: ${new Date(subtopic.lastUpdated).toLocaleDateString()}</small>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(topicElement);
+        });
+
+        console.log(`Rendered ${this.data.topics.length} topics`);
+        this.bindTopicEvents();
+    }
+
+    bindTopicEvents() {
+        console.log('Binding topic events...');
+
+        // Topic toggle functionality
+        document.querySelectorAll('.topic-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('.progress-indicator')) return;
+
+                const topicId = header.getAttribute('data-topic');
+                this.toggleTopic(topicId);
+            });
+        });
+
+        // Checkbox change events
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const topicId = e.target.getAttribute('data-topic');
+                const subtopicId = e.target.getAttribute('data-subtopic');
+                this.toggleSubtopic(topicId, subtopicId, e.target.checked);
+            });
+        });
+
+        // Comment textarea events
+        document.querySelectorAll('.subtopic-comments textarea').forEach(textarea => {
+            textarea.addEventListener('blur', (e) => {
+                const topicId = e.target.getAttribute('data-topic');
+                const subtopicId = e.target.getAttribute('data-subtopic');
+                this.updateSubtopicComment(topicId, subtopicId, e.target.value);
+            });
+        });
+    }
+
+    toggleTopic(topicId) {
+        const topicElement = document.querySelector(`[data-topic-id="${topicId}"]`);
+        const content = topicElement.querySelector('.topic-content');
+        const toggle = topicElement.querySelector('.topic-toggle');
+        const isExpanded = content.style.display !== 'none';
+
+        if (isExpanded) {
+            content.style.display = 'none';
+            toggle.setAttribute('aria-expanded', 'false');
+            topicElement.classList.remove('expanded');
+        } else {
+            content.style.display = 'block';
+            toggle.setAttribute('aria-expanded', 'true');
+            topicElement.classList.add('expanded');
+        }
+    }
+
+    toggleAllTopics() {
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const expandAllText = document.getElementById('expandAllText');
+
+        this.allExpanded = !this.allExpanded;
+
+        document.querySelectorAll('.topic-section').forEach(topicElement => {
+            const content = topicElement.querySelector('.topic-content');
+            const toggle = topicElement.querySelector('.topic-toggle');
+
+            if (this.allExpanded) {
+                content.style.display = 'block';
+                toggle.setAttribute('aria-expanded', 'true');
+                topicElement.classList.add('expanded');
+            } else {
+                content.style.display = 'none';
+                toggle.setAttribute('aria-expanded', 'false');
+                topicElement.classList.remove('expanded');
+            }
+        });
+
+        expandAllText.textContent = this.allExpanded ? 'Collapse All' : 'Expand All';
+    }
+
+    toggleSubtopic(topicId, subtopicId, completed) {
+        const topic = this.data.topics.find(t => t.id === topicId);
+        const subtopic = topic.subtopics.find(st => st.id === subtopicId);
+
+        subtopic.completed = completed;
+        subtopic.lastUpdated = new Date().toISOString();
+
+        // Update UI
+        const subtopicElement = document.querySelector(`[data-subtopic-id="${subtopicId}"]`);
+        if (completed) {
+            subtopicElement.classList.add('completed');
+        } else {
+            subtopicElement.classList.remove('completed');
+        }
+
+        this.updateProgress();
+        this.saveToStorage();
+    }
+
+    updateSubtopicComment(topicId, subtopicId, comment) {
+        const topic = this.data.topics.find(t => t.id === topicId);
+        const subtopic = topic.subtopics.find(st => st.id === subtopicId);
+
+        subtopic.comments = comment;
+        subtopic.lastUpdated = new Date().toISOString();
+
+        this.saveToStorage();
+    }
+
+    updateProgress() {
+        const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
+        const completedSubtopics = this.data.topics.reduce((sum, topic) => 
+            sum + topic.subtopics.filter(st => st.completed).length, 0);
+
+        const overallPercentage = Math.round((completedSubtopics / totalSubtopics) * 100);
+
+        // Update overall progress
+        const progressFill = document.getElementById('overallProgressFill');
+        const progressText = document.getElementById('overallProgressText');
+        const completedStats = document.getElementById('completedStats');
+
+        if (progressFill) progressFill.style.width = `${overallPercentage}%`;
+        if (progressText) progressText.textContent = `${overallPercentage}%`;
+        if (completedStats) completedStats.textContent = `${completedSubtopics} of ${totalSubtopics} topics completed`;
+
+        // Update individual topic progress circles
+        this.data.topics.forEach(topic => {
+            const completedCount = topic.subtopics.filter(st => st.completed).length;
+            const totalCount = topic.subtopics.length;
+            const percentage = Math.round((completedCount / totalCount) * 100);
+
+            const progressCircle = document.querySelector(`[data-topic-id="${topic.id}"] .progress-circle`);
+            if (progressCircle) {
+                const circle = progressCircle.querySelector('.progress-ring__circle');
+                const text = progressCircle.querySelector('.progress-text');
+                const stats = progressCircle.parentElement.querySelector('.progress-stats-small');
+
+                progressCircle.setAttribute('data-percentage', percentage);
+
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                const offset = circumference - (percentage / 100) * circumference;
+
+                circle.style.strokeDasharray = circumference;
+                circle.style.strokeDashoffset = offset;
+
+                if (text) text.textContent = `${percentage}%`;
+                if (stats) stats.textContent = `${completedCount}/${totalCount}`;
+            }
+        });
+    }
+
+    filterTopics(searchTerm) {
+        const normalizedSearch = searchTerm.toLowerCase().trim();
+
+        document.querySelectorAll('.topic-section').forEach(topicElement => {
+            const topicName = topicElement.querySelector('.topic-title').textContent.toLowerCase();
+            const subtopics = Array.from(topicElement.querySelectorAll('.subtopic-name')).map(el => el.textContent.toLowerCase());
+
+            const topicMatches = topicName.includes(normalizedSearch);
+            const subtopicMatches = subtopics.some(subtopic => subtopic.includes(normalizedSearch));
+
+            if (normalizedSearch === '' || topicMatches || subtopicMatches) {
+                topicElement.style.display = 'block';
+
+                // If searching and subtopic matches, expand the topic
+                if (normalizedSearch !== '' && subtopicMatches) {
+                    const content = topicElement.querySelector('.topic-content');
+                    const toggle = topicElement.querySelector('.topic-toggle');
+                    content.style.display = 'block';
+                    toggle.setAttribute('aria-expanded', 'true');
+                    topicElement.classList.add('expanded');
+                }
+            } else {
+                topicElement.style.display = 'none';
+            }
+        });
+    }
+
+    updateLastUpdatedDisplay() {
+        const lastUpdated = document.getElementById('lastUpdated');
+        if (lastUpdated && this.data.settings && this.data.settings.lastModified) {
+            const date = new Date(this.data.settings.lastModified);
+            lastUpdated.textContent = `Last updated: ${date.toLocaleString()}`;
+        } else if (lastUpdated) {
+            lastUpdated.textContent = 'Last updated: Never';
+        }
+    }
+
+    exportProgress() {
+        const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
+        const completedSubtopics = this.data.topics.reduce((sum, topic) => 
+            sum + topic.subtopics.filter(st => st.completed).length, 0);
+
+        let exportText = `DevOps Preparation Progress Report\n`;
+        exportText += `Generated: ${new Date().toLocaleString()}\n`;
+        exportText += `Overall Progress: ${completedSubtopics}/${totalSubtopics} (${Math.round((completedSubtopics / totalSubtopics) * 100)}%)\n\n`;
+
+        this.data.topics.forEach(topic => {
+            const completed = topic.subtopics.filter(st => st.completed).length;
+            const total = topic.subtopics.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            exportText += `${topic.name}: ${completed}/${total} (${percentage}%)\n`;
+
+            topic.subtopics.forEach(subtopic => {
+                const status = subtopic.completed ? '✓' : '○';
+                exportText += `  ${status} ${subtopic.name}`;
+                if (subtopic.comments) {
+                    exportText += ` - ${subtopic.comments}`;
+                }
+                exportText += '\n';
+            });
+            exportText += '\n';
+        });
+
+        // Create and download file
+        const blob = new Blob([exportText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `devops-prep-progress-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    resetAllData() {
+        if (confirm('Are you sure you want to reset all progress? This action cannot be undone.')) {
+            this.clearStorage();
+
+            // Reset data structure
+            this.data.topics.forEach(topic => {
+                topic.subtopics.forEach(subtopic => {
+                    subtopic.completed = false;
+                    subtopic.comments = '';
+                    subtopic.lastUpdated = null;
+                });
+            });
+
+            this.data.settings = {
+                createdDate: new Date().toISOString(),
+                lastModified: new Date().toISOString()
+            };
+
+            this.saveToStorage();
+            this.renderTopics();
+            this.updateProgress();
+        }
+    }
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing DevOps Tracker...');
+    try {
+        new DevOpsTracker();
+    } catch (error) {
+        console.error('Failed to initialize DevOps Tracker:', error);
+        document.getElementById('topicsContainer').innerHTML = `
+            <div class="error">
+                Failed to load DevOps Tracker. Please refresh the page.<br>
+                Error: ${error.message}
+            </div>
+        `;
+    }
+});
+    </script>
 </body>
 </html>
