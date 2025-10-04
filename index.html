@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Preparation Tracker</title>
+    <title>DevOps Preparation Tracker - Debug Version</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
 :root {
@@ -44,6 +44,109 @@ body {
   padding: 0 1rem;
 }
 
+/* Debug Panel */
+.debug-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  width: 350px;
+  max-height: 400px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.debug-header {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.debug-toggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 3px;
+}
+
+.debug-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.debug-content {
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 0.875rem;
+}
+
+.debug-content.collapsed {
+  display: none;
+}
+
+.debug-item {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+}
+
+.debug-item.success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--color-success);
+}
+
+.debug-item.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--color-warning);
+}
+
+.debug-item.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-danger);
+}
+
+.debug-label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.debug-value {
+  font-family: monospace;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.debug-test-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.debug-test-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.debug-test-btn:disabled {
+  background: var(--color-secondary);
+  cursor: not-allowed;
+}
+
 /* Header */
 .header {
   background: var(--color-surface);
@@ -52,7 +155,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
 }
 
 .header .container {
@@ -76,44 +178,11 @@ body {
   align-items: center;
 }
 
-.header__user-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
 .header__controls {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.sync-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.sync-status.synced {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--color-success);
-}
-
-.sync-status.syncing {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--color-warning);
-}
-
-.sync-status.error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--color-danger);
 }
 
 /* Buttons */
@@ -144,11 +213,6 @@ body {
   font-size: 0.8rem;
 }
 
-.btn--lg {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-}
-
 .btn--primary {
   background: var(--color-primary);
   color: white;
@@ -156,15 +220,6 @@ body {
 
 .btn--primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
-}
-
-.btn--secondary {
-  background: var(--color-secondary);
-  color: white;
-}
-
-.btn--secondary:hover:not(:disabled) {
-  background: #475569;
 }
 
 .btn--outline {
@@ -178,82 +233,108 @@ body {
   color: white;
 }
 
-.btn--outline-danger {
-  background: transparent;
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger);
+/* Setup Guide */
+.setup-guide {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  margin: 2rem 0;
+  overflow: hidden;
 }
 
-.btn--outline-danger:hover:not(:disabled) {
-  background: var(--color-danger);
+.setup-guide h3 {
+  background: var(--color-primary);
   color: white;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  font-size: 1.125rem;
 }
 
-.btn--ghost {
-  background: transparent;
-  color: var(--color-text-muted);
-  padding: 0.5rem;
+.setup-guide-content {
+  padding: 1.5rem;
 }
 
-.btn--ghost:hover:not(:disabled) {
-  background: var(--color-border);
-  color: var(--color-text);
+.setup-step {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
-/* Landing Page */
-.landing {
-  min-height: calc(100vh - 120px);
-  display: flex;
+.setup-step:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.step-number {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 0;
-}
-
-.landing__content {
-  text-align: center;
-  max-width: 600px;
-}
-
-.landing__title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: var(--color-text);
-  margin-bottom: 1rem;
-  line-height: 1.2;
-}
-
-.landing__subtitle {
-  font-size: 1.25rem;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
-
-.landing__features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
-}
-
-.feature {
-  text-align: center;
-}
-
-.feature__icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.feature__title {
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  font-size: 1.125rem;
+  font-weight: 600;
   color: var(--color-text);
 }
 
-.feature__description {
+.code-block {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  font-family: 'Courier New', monospace;
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.code-inline {
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin: 1rem 0;
+  border-left: 4px solid;
+}
+
+.alert.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--color-warning);
+  color: #92400e;
+}
+
+.alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-danger);
+  color: #dc2626;
+}
+
+.alert.info {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 /* Auth Modal */
@@ -286,24 +367,8 @@ body {
   position: relative;
 }
 
-.auth-form h2 {
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: var(--color-text);
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
 .form-group {
   margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--color-text);
-  font-size: 0.875rem;
 }
 
 .form-control {
@@ -341,475 +406,50 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.auth-switch {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-}
-
-.auth-switch button {
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  cursor: pointer;
-  font-weight: 500;
-  text-decoration: none;
-  margin-left: 0.25rem;
-}
-
-.auth-switch button:hover {
-  text-decoration: underline;
-}
-
-.close-modal {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.close-modal:hover {
-  background: var(--color-border);
-}
-
-/* Main Content (Tracker) */
-.main {
-  padding: 2rem 0;
-  min-height: calc(100vh - 200px);
-}
-
-/* Cards */
-.card {
-  background: var(--color-surface);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
-}
-
-.card__header {
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.card__body {
-  padding: 1.25rem;
-}
-
-/* Progress Overview */
-.progress-overview h2 {
-  margin-bottom: 1rem;
-  color: var(--color-text);
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.progress-bar-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.progress-bar {
-  flex: 1;
-  height: 12px;
-  background-color: var(--color-border);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.progress-bar__fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-success) 0%, var(--color-primary) 100%);
-  transition: width 0.3s ease;
-  width: 0%;
-}
-
-.progress-percentage {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--color-primary);
-  min-width: 4rem;
-}
-
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-/* Search */
-.search-section {
-  margin-bottom: 2rem;
-}
-
-/* Topic Sections */
-.topic-section {
-  margin-bottom: 1rem;
-}
-
-.topic-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: var(--transition);
-  padding: 1rem 1.25rem;
-}
-
-.topic-header:hover {
-  background-color: rgba(37, 99, 235, 0.02);
-}
-
-.topic-header__left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-}
-
-.topic-header__right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.topic-toggle {
-  color: var(--color-secondary);
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-}
-
-.topic-toggle:hover {
-  background: var(--color-border);
-}
-
-.topic-toggle[aria-expanded="true"] .chevron-icon {
-  transform: rotate(90deg);
-}
-
-.chevron-icon {
-  transition: transform 0.2s ease;
-  width: 20px;
-  height: 20px;
-}
-
-.topic-info {
-  flex: 1;
-}
-
-.topic-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: var(--color-text);
-}
-
-.topic-description {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-.progress-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.progress-circle {
-  position: relative;
-  width: 40px;
-  height: 40px;
-}
-
-.progress-ring {
-  transform: rotate(-90deg);
-}
-
-.progress-ring__circle {
-  stroke: var(--color-primary);
-  stroke-dasharray: 113;
-  stroke-dashoffset: 113;
-  transition: stroke-dashoffset 0.3s ease;
-  fill: none;
-}
-
-.progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.progress-stats-small {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-/* Topic Content */
-.topic-content {
-  border-top: 1px solid var(--color-border);
-  padding: 0;
-  display: none;
-}
-
-.subtopics-list {
-  padding: 0;
-}
-
-.subtopic-item {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
-  transition: var(--transition);
-}
-
-.subtopic-item:last-child {
-  border-bottom: none;
-}
-
-.subtopic-item:hover {
-  background-color: rgba(37, 99, 235, 0.02);
-}
-
-.subtopic-item.completed {
-  background-color: rgba(16, 185, 129, 0.05);
-}
-
-.subtopic-item.completed .subtopic-name {
-  text-decoration: line-through;
-  color: var(--color-text-muted);
-}
-
-.subtopic-header {
-  margin-bottom: 0.75rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.checkbox-custom {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--color-border);
-  border-radius: 3px;
-  background: var(--color-surface);
-  transition: var(--transition);
-  position: relative;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
-  background: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
-  content: '✓';
-  position: absolute;
-  color: white;
-  font-size: 12px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.subtopic-name {
-  flex: 1;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.subtopic-comments {
-  margin-left: 2.5rem;
-}
-
-.subtopic-comments textarea {
-  width: 100%;
-  min-height: 60px;
-  padding: 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  resize: vertical;
-  transition: var(--transition);
-  font-family: inherit;
-}
-
-.subtopic-comments textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* Footer */
-.footer {
-  margin-top: 4rem;
-  padding: 2rem 0;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
-
-.footer-content {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-}
-
-.footer-content p {
-  margin-bottom: 0.5rem;
-}
-
-.footer-links a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.footer-links a:hover {
-  text-decoration: underline;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .landing__title {
-    font-size: 2rem;
-  }
-
-  .landing__subtitle {
-    font-size: 1rem;
-  }
-
-  .header .container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .header__nav {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .topic-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .topic-header__right {
-    justify-content: center;
-  }
-
-  .progress-bar-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .progress-percentage {
-    text-align: center;
-  }
-
-  .progress-stats {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.25rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 0.75rem;
-  }
-
-  .landing {
-    padding: 2rem 0;
-  }
-
-  .landing__features {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin: 2rem 0;
-  }
-
-  .header__title {
-    font-size: 1.25rem;
-  }
-
-  .card__header,
-  .card__body {
-    padding: 1rem;
-  }
-
-  .subtopic-item {
-    padding: 0.75rem 1rem;
-  }
-
-  .subtopic-comments {
-    margin-left: 1.75rem;
-  }
-
-  .auth-form {
-    margin: 0.5rem;
-    padding: 1.5rem;
-  }
-}
-
-/* Loading Animation */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-text-muted);
-}
-
-/* Hidden utility */
 .hidden {
   display: none !important;
 }
     </style>
 </head>
 <body>
-    <!-- Authentication Modal -->
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <div class="debug-header" id="debugHeader">
+            <h4>🔧 Debug Console</h4>
+            <button class="debug-toggle" id="debugToggle">−</button>
+        </div>
+        <div class="debug-content" id="debugContent">
+            <div id="debugInfo">
+                <div class="debug-item" id="configStatus">
+                    <div class="debug-label">Configuration Status</div>
+                    <div class="debug-value" id="configValue">Checking...</div>
+                </div>
+                <div class="debug-item" id="supabaseStatus">
+                    <div class="debug-label">Supabase Connection</div>
+                    <div class="debug-value" id="supabaseValue">Testing...</div>
+                </div>
+                <div class="debug-item" id="authStatus">
+                    <div class="debug-label">Authentication Status</div>
+                    <div class="debug-value" id="authValue">Not authenticated</div>
+                </div>
+                <div class="debug-item" id="databaseStatus">
+                    <div class="debug-label">Database Status</div>
+                    <div class="debug-value" id="databaseValue">Not tested</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <button class="debug-test-btn" id="testConnectionBtn">Test Connection</button>
+                <button class="debug-test-btn" id="testTableBtn">Test Table</button>
+                <button class="debug-test-btn" id="clearLogsBtn">Clear Logs</button>
+            </div>
+            <div id="debugLogs" style="margin-top: 1rem; font-size: 0.75rem; max-height: 150px; overflow-y: auto; background: #1a202c; color: #e2e8f0; padding: 0.5rem; border-radius: 4px;"></div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
     <div class="auth-modal hidden" id="authModal">
         <div class="auth-form">
-            <button class="close-modal" id="closeModal" type="button">&times;</button>
-            <h2 id="authTitle">Welcome Back</h2>
+            <h2 id="authTitle">Sign In</h2>
             <form id="authForm">
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -830,478 +470,465 @@ body {
                         Sign In
                     </button>
                 </div>
-                <div class="auth-switch">
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.875rem;">
                     <span id="authSwitchText">Don't have an account?</span>
-                    <button type="button" id="authSwitchBtn">Sign Up</button>
+                    <button type="button" id="authSwitchBtn" style="background: none; border: none; color: var(--color-primary); cursor: pointer; text-decoration: underline;">Sign Up</button>
                 </div>
             </form>
+            <button onclick="document.getElementById('authModal').classList.add('hidden')" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
     </div>
 
     <header class="header">
         <div class="container">
-            <a href="#" class="header__title" id="homeLink">DevOps Tracker</a>
+            <a href="#" class="header__title">DevOps Tracker - Debug Mode</a>
             <nav class="header__nav">
-                <!-- Guest Navigation -->
-                <div class="header__guest" id="guestNav">
-                    <div class="header__controls">
-                        <button class="btn btn--outline btn--sm" id="signInBtn">Sign In</button>
-                        <button class="btn btn--primary btn--sm" id="signUpBtn">Sign Up</button>
-                    </div>
-                </div>
-
-                <!-- Authenticated Navigation -->
-                <div class="header__auth hidden" id="authNav">
-                    <div class="header__user-info">
-                        <div class="sync-status synced" id="syncStatus">
-                            <span>●</span>
-                            <span>Synced</span>
-                        </div>
-                        <span id="userEmail"></span>
-                    </div>
-                    <div class="header__controls">
-                        <button class="btn btn--ghost btn--sm" id="expandAllBtn">
-                            <span id="expandAllText">Expand All</span>
-                        </button>
-                        <button class="btn btn--outline btn--sm" id="exportBtn">Export</button>
-                        <button class="btn btn--outline-danger btn--sm" id="signOutBtn">Sign Out</button>
-                    </div>
+                <div class="header__controls">
+                    <button class="btn btn--outline btn--sm" id="signInBtn">Sign In</button>
+                    <button class="btn btn--primary btn--sm" id="signUpBtn">Sign Up</button>
+                    <button class="btn btn--outline btn--sm hidden" id="signOutBtn">Sign Out</button>
                 </div>
             </nav>
         </div>
     </header>
 
     <main>
-        <!-- Landing Page -->
-        <section class="landing" id="landingSection">
-            <div class="container">
-                <div class="landing__content">
-                    <h1 class="landing__title">DevOps Preparation Tracker</h1>
-                    <p class="landing__subtitle">
-                        Master your DevOps interview preparation with a comprehensive tracking system 
-                        covering 8 key technology areas and 80+ essential topics.
-                    </p>
+        <div class="container">
+            <div class="setup-guide">
+                <h3>🔧 Supabase Setup & Debugging Guide</h3>
+                <div class="setup-guide-content">
 
-                    <div class="landing__features">
-                        <div class="feature">
-                            <div class="feature__icon">📊</div>
-                            <div class="feature__title">Progress Tracking</div>
-                            <div class="feature__description">Visual progress indicators and completion statistics</div>
-                        </div>
-                        <div class="feature">
-                            <div class="feature__icon">☁️</div>
-                            <div class="feature__title">Cloud Sync</div>
-                            <div class="feature__description">Your progress saved securely in the cloud</div>
-                        </div>
-                        <div class="feature">
-                            <div class="feature__icon">📱</div>
-                            <div class="feature__title">Multi-Device</div>
-                            <div class="feature__description">Access from anywhere, any device</div>
-                        </div>
+                    <div class="alert info">
+                        <strong>Debug Mode Active:</strong> This version provides detailed debugging information to help you set up Supabase correctly. Check the debug panel in the bottom right corner for real-time status updates.
                     </div>
 
-                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
-                        <button class="btn btn--primary btn--lg" id="getStartedBtn">Get Started</button>
-                        <button class="btn btn--outline btn--lg" id="learnMoreBtn">Learn More</button>
+                    <div class="setup-step">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Create Supabase Project</div>
+                        </div>
+                        <p>1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> and create a new project</p>
+                        <p>2. Wait for the project to be fully provisioned (2-3 minutes)</p>
+                        <p>3. Note your project URL and anon key from the API settings</p>
+                    </div>
+
+                    <div class="setup-step">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Configure Database</div>
+                        </div>
+                        <p>Run this SQL script in your Supabase SQL Editor:</p>
+                        <div class="code-block">-- Create user_progress table
+CREATE TABLE IF NOT EXISTS user_progress (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  topic_data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Users can view own progress" ON user_progress
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own progress" ON user_progress
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own progress" ON user_progress
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Create index
+CREATE INDEX IF NOT EXISTS user_progress_user_id_idx ON user_progress(user_id);</div>
+                    </div>
+
+                    <div class="setup-step">
+                        <div class="step-header">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Configure Authentication</div>
+                        </div>
+                        <p>1. Go to Authentication → Settings in your Supabase dashboard</p>
+                        <p>2. Set Site URL to your GitHub Pages URL (e.g., <span class="code-inline">https://vikasops.github.io/Prep_Tracker/</span>)</p>
+                        <p>3. Enable email confirmations (recommended)</p>
+                    </div>
+
+                    <div class="setup-step">
+                        <div class="step-header">
+                            <div class="step-number">4</div>
+                            <div class="step-title">Update Code Credentials</div>
+                        </div>
+                        <p>Replace these values in the JavaScript code:</p>
+                        <div class="code-block">const SUPABASE_URL = 'https://ffkmdzknroalcmhpftcj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';</div>
+
+                        <div class="alert warning">
+                            <strong>Current Status:</strong> <span id="currentConfigStatus">Configuration not detected</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Tracker App -->
-        <div class="main hidden" id="trackerApp">
-            <div class="container">
-                <!-- Overall Progress Section -->
-                <section class="progress-overview">
-                    <div class="card">
-                        <div class="card__body">
-                            <h2>📈 Your Progress</h2>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar">
-                                    <div class="progress-bar__fill" id="overallProgressFill"></div>
-                                </div>
-                                <span class="progress-percentage" id="overallProgressText">0%</span>
-                            </div>
-                            <div class="progress-stats">
-                                <span id="completedStats">0 of 80 topics completed</span>
-                                <span id="lastUpdated">Last updated: Never</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Search Section -->
-                <section class="search-section">
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="searchInput" 
-                               placeholder="🔍 Search topics (e.g., Docker, Kubernetes, CI/CD...)">
-                    </div>
-                </section>
-
-                <!-- Topics Section -->
-                <section class="topics-section">
-                    <div id="topicsContainer">
-                        <div class="loading">Loading DevOps topics...</div>
-                    </div>
-                </section>
-            </div>
         </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <p>&copy; 2025 DevOps Preparation Tracker. Built for the DevOps community.</p>
-                <p class="footer-links">
-                    <a href="https://github.com" target="_blank">GitHub</a> •
-                    <a href="https://kubernetes.io/docs" target="_blank">Kubernetes Docs</a> •
-                    <a href="https://terraform.io/docs" target="_blank">Terraform Docs</a>
-                </p>
-            </div>
-        </div>
-    </footer>
 
     <script>
 // Supabase configuration - REPLACE WITH YOUR ACTUAL VALUES
 const SUPABASE_URL = 'https://ffkmdzknroalcmhpftcj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';
 
-// Check if demo mode (no credentials provided)
+// Debug logging
+class DebugLogger {
+    constructor() {
+        this.logs = [];
+        this.maxLogs = 100;
+    }
+
+    log(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = { timestamp, message, type };
+        this.logs.push(logEntry);
+
+        if (this.logs.length > this.maxLogs) {
+            this.logs.shift();
+        }
+
+        this.updateDebugPanel();
+        console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+
+    error(message) {
+        this.log(message, 'error');
+    }
+
+    warn(message) {
+        this.log(message, 'warning');
+    }
+
+    success(message) {
+        this.log(message, 'success');
+    }
+
+    clear() {
+        this.logs = [];
+        this.updateDebugPanel();
+    }
+
+    updateDebugPanel() {
+        const debugLogs = document.getElementById('debugLogs');
+        if (debugLogs) {
+            debugLogs.innerHTML = this.logs.slice(-10).map(log => 
+                `<div style="color: ${this.getLogColor(log.type)};">[${log.timestamp}] ${log.message}</div>`
+            ).join('');
+            debugLogs.scrollTop = debugLogs.scrollHeight;
+        }
+    }
+
+    getLogColor(type) {
+        switch (type) {
+            case 'error': return '#ff6b6b';
+            case 'warning': return '#ffa726';
+            case 'success': return '#66bb6a';
+            default: return '#e2e8f0';
+        }
+    }
+}
+
+const logger = new DebugLogger();
+
+// Check if demo mode
 const DEMO_MODE = SUPABASE_URL === 'https://ffkmdzknroalcmhpftcj.supabase.co' || SUPABASE_ANON_KEY === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZma21kemtucm9hbGNtaHBmdGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODE4NTMsImV4cCI6MjA3NTE1Nzg1M30.d3y4HhyRfElwb54WGXuz2DsSEDujQo6_prD4vP3voxs';
 
-// Initialize Supabase client (only if not in demo mode)
+// Initialize Supabase client
 let supabase = null;
 if (!DEMO_MODE) {
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase client initialized successfully');
+        logger.success('Supabase client initialized successfully');
     } catch (error) {
-        console.error('Failed to initialize Supabase client:', error);
+        logger.error('Failed to initialize Supabase client: ' + error.message);
     }
 }
 
-// DevOps Preparation Tracker
+// Debug status updater
+class DebugStatus {
+    constructor() {
+        this.updateConfigStatus();
+        this.updateSupabaseStatus();
+    }
+
+    updateConfigStatus() {
+        const status = document.getElementById('configStatus');
+        const value = document.getElementById('configValue');
+        const current = document.getElementById('currentConfigStatus');
+
+        if (DEMO_MODE) {
+            status.className = 'debug-item warning';
+            value.textContent = 'Demo Mode - Credentials needed';
+            if (current) current.textContent = 'Demo mode active - please configure credentials';
+            logger.warn('Running in demo mode - Supabase credentials not configured');
+        } else {
+            status.className = 'debug-item success';
+            value.textContent = 'Configured';
+            if (current) current.textContent = 'Credentials configured correctly';
+            logger.success('Supabase credentials configured');
+        }
+    }
+
+    async updateSupabaseStatus() {
+        const status = document.getElementById('supabaseStatus');
+        const value = document.getElementById('supabaseValue');
+
+        if (DEMO_MODE) {
+            status.className = 'debug-item warning';
+            value.textContent = 'Demo mode';
+            return;
+        }
+
+        try {
+            // Test basic connection
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                status.className = 'debug-item error';
+                value.textContent = 'Connection failed: ' + error.message;
+                logger.error('Supabase connection failed: ' + error.message);
+            } else {
+                status.className = 'debug-item success';
+                value.textContent = 'Connected';
+                logger.success('Supabase connection established');
+            }
+        } catch (error) {
+            status.className = 'debug-item error';
+            value.textContent = 'Connection error: ' + error.message;
+            logger.error('Supabase connection error: ' + error.message);
+        }
+    }
+
+    updateAuthStatus(user) {
+        const status = document.getElementById('authStatus');
+        const value = document.getElementById('authValue');
+
+        if (user) {
+            status.className = 'debug-item success';
+            value.textContent = `Authenticated: ${user.email}`;
+            logger.success(`User authenticated: ${user.email}`);
+        } else {
+            status.className = 'debug-item';
+            value.textContent = 'Not authenticated';
+        }
+    }
+
+    async updateDatabaseStatus() {
+        const status = document.getElementById('databaseStatus');
+        const value = document.getElementById('databaseValue');
+
+        if (DEMO_MODE) {
+            status.className = 'debug-item warning';
+            value.textContent = 'Demo mode - no database';
+            return;
+        }
+
+        if (!supabase) {
+            status.className = 'debug-item error';
+            value.textContent = 'Supabase not initialized';
+            return;
+        }
+
+        try {
+            // Test table existence and RLS
+            const { data, error } = await supabase
+                .from('user_progress')
+                .select('count', { count: 'exact', head: true });
+
+            if (error) {
+                if (error.code === '42P01') {
+                    status.className = 'debug-item error';
+                    value.textContent = 'Table not found - run SQL script';
+                    logger.error('user_progress table does not exist');
+                } else if (error.code === '42501') {
+                    status.className = 'debug-item error';
+                    value.textContent = 'Permission denied - check RLS policies';
+                    logger.error('RLS policies not configured correctly');
+                } else {
+                    status.className = 'debug-item error';
+                    value.textContent = 'Database error: ' + error.message;
+                    logger.error('Database error: ' + error.message);
+                }
+            } else {
+                status.className = 'debug-item success';
+                value.textContent = 'Table accessible';
+                logger.success('Database table accessible');
+            }
+        } catch (error) {
+            status.className = 'debug-item error';
+            value.textContent = 'Test failed: ' + error.message;
+            logger.error('Database test failed: ' + error.message);
+        }
+    }
+}
+
+// Main application
 class DevOpsTracker {
     constructor() {
         this.user = null;
         this.isSignUp = false;
-        this.demoMode = DEMO_MODE;
-        this.allExpanded = false;
+        this.debugStatus = new DebugStatus();
 
-        this.data = {
-            "topics": [
-                {
-                    "id": "terraform",
-                    "name": "Terraform",
-                    "description": "Infrastructure as Code with Terraform",
-                    "subtopics": [
-                        {"id": "terraform-basics", "name": "Terraform Basics & Architecture", "completed": false, "comments": ""},
-                        {"id": "iac-concepts", "name": "Infrastructure as Code (IaC) Concepts", "completed": false, "comments": ""},
-                        {"id": "terraform-commands", "name": "Terraform Commands & CLI", "completed": false, "comments": ""},
-                        {"id": "state-management", "name": "State Management & Remote State", "completed": false, "comments": ""},
-                        {"id": "terraform-modules", "name": "Modules & Module Development", "completed": false, "comments": ""},
-                        {"id": "variables-datasources", "name": "Variables & Data Sources", "completed": false, "comments": ""},
-                        {"id": "providers", "name": "Providers & Provider Configuration", "completed": false, "comments": ""},
-                        {"id": "workspaces", "name": "Terraform Workspaces", "completed": false, "comments": ""},
-                        {"id": "terraform-security", "name": "Best Practices & Security", "completed": false, "comments": ""},
-                        {"id": "terraform-scenarios", "name": "Scenario-Based Questions", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "linux", 
-                    "name": "Linux",
-                    "description": "Linux System Administration & Operations",
-                    "subtopics": [
-                        {"id": "linux-fundamentals", "name": "Linux Fundamentals & Architecture", "completed": false, "comments": ""},
-                        {"id": "file-system", "name": "File System & Directory Structure", "completed": false, "comments": ""},
-                        {"id": "command-line", "name": "Command Line & Shell Scripting", "completed": false, "comments": ""},
-                        {"id": "process-management", "name": "Process Management", "completed": false, "comments": ""},
-                        {"id": "system-admin", "name": "System Administration", "completed": false, "comments": ""},
-                        {"id": "network-config", "name": "Network Configuration", "completed": false, "comments": ""},
-                        {"id": "security-permissions", "name": "Security & Permissions", "completed": false, "comments": ""},
-                        {"id": "package-management", "name": "Package Management", "completed": false, "comments": ""},
-                        {"id": "system-monitoring", "name": "System Monitoring & Troubleshooting", "completed": false, "comments": ""},
-                        {"id": "performance-tuning", "name": "Performance Tuning", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "kubernetes",
-                    "name": "Kubernetes", 
-                    "description": "Container Orchestration with Kubernetes",
-                    "subtopics": [
-                        {"id": "k8s-architecture", "name": "Kubernetes Architecture & Components", "completed": false, "comments": ""},
-                        {"id": "pods-deployments", "name": "Pods, Deployments & Services", "completed": false, "comments": ""},
-                        {"id": "configmaps-secrets", "name": "ConfigMaps & Secrets", "completed": false, "comments": ""},
-                        {"id": "storage-pv", "name": "Storage & Persistent Volumes", "completed": false, "comments": ""},
-                        {"id": "k8s-networking", "name": "Networking & Ingress", "completed": false, "comments": ""},
-                        {"id": "rbac-security", "name": "RBAC & Security", "completed": false, "comments": ""},
-                        {"id": "monitoring-logging", "name": "Monitoring & Logging", "completed": false, "comments": ""},
-                        {"id": "helm", "name": "Helm & Package Management", "completed": false, "comments": ""},
-                        {"id": "k8s-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": ""},
-                        {"id": "k8s-best-practices", "name": "Best Practices & Scenarios", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "jenkins",
-                    "name": "Jenkins",
-                    "description": "CI/CD Automation with Jenkins", 
-                    "subtopics": [
-                        {"id": "jenkins-architecture", "name": "Jenkins Architecture & Setup", "completed": false, "comments": ""},
-                        {"id": "pipeline-development", "name": "Pipeline Development (Declarative & Scripted)", "completed": false, "comments": ""},
-                        {"id": "plugin-management", "name": "Plugin Management", "completed": false, "comments": ""},
-                        {"id": "build-deployment", "name": "Build & Deployment Automation", "completed": false, "comments": ""},
-                        {"id": "jenkins-security", "name": "Security & User Management", "completed": false, "comments": ""},
-                        {"id": "master-slave", "name": "Master-Slave Configuration", "completed": false, "comments": ""},
-                        {"id": "git-integration", "name": "Integration with Git & SCM", "completed": false, "comments": ""},
-                        {"id": "docker-k8s-integration", "name": "Docker & Kubernetes Integration", "completed": false, "comments": ""},
-                        {"id": "jenkins-monitoring", "name": "Monitoring & Troubleshooting", "completed": false, "comments": ""},
-                        {"id": "jenkins-best-practices", "name": "Best Practices", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "github",
-                    "name": "GitHub",
-                    "description": "Version Control & GitHub Workflows",
-                    "subtopics": [
-                        {"id": "git-fundamentals", "name": "Git Fundamentals & Commands", "completed": false, "comments": ""},
-                        {"id": "branching-merging", "name": "Branching & Merging Strategies", "completed": false, "comments": ""},
-                        {"id": "github-actions", "name": "GitHub Actions & Workflows", "completed": false, "comments": ""},
-                        {"id": "pull-requests", "name": "Pull Requests & Code Review", "completed": false, "comments": ""},
-                        {"id": "repo-management", "name": "Repository Management", "completed": false, "comments": ""},
-                        {"id": "github-security", "name": "GitHub Security Features", "completed": false, "comments": ""},
-                        {"id": "api-integrations", "name": "API & Integrations", "completed": false, "comments": ""},
-                        {"id": "team-collaboration", "name": "Collaboration & Team Management", "completed": false, "comments": ""},
-                        {"id": "advanced-git", "name": "Advanced Git Operations", "completed": false, "comments": ""},
-                        {"id": "git-best-practices", "name": "Best Practices & Troubleshooting", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "gitlab",
-                    "name": "GitLab", 
-                    "description": "GitLab CI/CD & DevOps Platform",
-                    "subtopics": [
-                        {"id": "gitlab-architecture", "name": "GitLab Architecture & Setup", "completed": false, "comments": ""},
-                        {"id": "gitlab-cicd", "name": "GitLab CI/CD Pipelines", "completed": false, "comments": ""},
-                        {"id": "runners-jobs", "name": "Runners & Job Management", "completed": false, "comments": ""},
-                        {"id": "gitlab-security", "name": "Security & Access Control", "completed": false, "comments": ""},
-                        {"id": "container-registry", "name": "Container Registry", "completed": false, "comments": ""},
-                        {"id": "gitlab-monitoring", "name": "Monitoring & Analytics", "completed": false, "comments": ""},
-                        {"id": "gitlab-api", "name": "API & Integrations", "completed": false, "comments": ""},
-                        {"id": "multi-project", "name": "Multi-project Pipelines", "completed": false, "comments": ""},
-                        {"id": "gitlab-vs-github", "name": "GitLab vs GitHub Comparison", "completed": false, "comments": ""},
-                        {"id": "gitlab-best-practices", "name": "Best Practices", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "argocd",
-                    "name": "ArgoCD",
-                    "description": "GitOps Continuous Delivery with ArgoCD",
-                    "subtopics": [
-                        {"id": "gitops-principles", "name": "GitOps Principles & Concepts", "completed": false, "comments": ""},
-                        {"id": "argocd-architecture", "name": "ArgoCD Architecture & Components", "completed": false, "comments": ""},
-                        {"id": "app-deployment", "name": "Application Deployment & Management", "completed": false, "comments": ""},
-                        {"id": "sync-strategies", "name": "Sync Strategies & Policies", "completed": false, "comments": ""},
-                        {"id": "multi-cluster", "name": "Multi-cluster Management", "completed": false, "comments": ""},
-                        {"id": "argocd-rbac", "name": "RBAC & Security", "completed": false, "comments": ""},
-                        {"id": "argocd-monitoring", "name": "Monitoring & Observability", "completed": false, "comments": ""},
-                        {"id": "argocd-troubleshooting", "name": "Troubleshooting & Debugging", "completed": false, "comments": ""},
-                        {"id": "cicd-integration", "name": "Integration with CI/CD", "completed": false, "comments": ""},
-                        {"id": "argocd-scenarios", "name": "Best Practices & Scenarios", "completed": false, "comments": ""}
-                    ]
-                },
-                {
-                    "id": "networking",
-                    "name": "Networking",
-                    "description": "Network Fundamentals for DevOps",
-                    "subtopics": [
-                        {"id": "osi-tcpip", "name": "OSI & TCP/IP Model", "completed": false, "comments": ""},
-                        {"id": "ip-subnetting", "name": "IP Addressing & Subnetting", "completed": false, "comments": ""},
-                        {"id": "dns-dhcp", "name": "DNS & DHCP", "completed": false, "comments": ""},
-                        {"id": "routing-switching", "name": "Routing & Switching", "completed": false, "comments": ""},
-                        {"id": "load-balancing", "name": "Load Balancing & Proxies", "completed": false, "comments": ""},
-                        {"id": "firewalls", "name": "Firewalls & Security", "completed": false, "comments": ""},
-                        {"id": "cloud-networking", "name": "Cloud Networking (VPC, Subnets)", "completed": false, "comments": ""},
-                        {"id": "container-networking", "name": "Container Networking", "completed": false, "comments": ""},
-                        {"id": "network-troubleshooting", "name": "Troubleshooting Tools", "completed": false, "comments": ""},
-                        {"id": "network-security", "name": "Network Security & Best Practices", "completed": false, "comments": ""}
-                    ]
-                }
-            ]
-        };
-
-        console.log('DevOps Tracker initialized');
+        logger.log('DevOps Tracker initialized');
         this.init();
     }
 
     async init() {
-        console.log('Initializing tracker...');
-
-        if (!this.demoMode && supabase) {
-            await this.checkAuthState();
-        } else {
-            this.showLandingPage();
-        }
+        logger.log('Initializing application...');
 
         this.bindEvents();
         this.bindAuthEvents();
-        console.log('Tracker initialized successfully');
+        this.bindDebugEvents();
+
+        if (!DEMO_MODE) {
+            await this.checkAuthState();
+        }
+
+        logger.success('Application initialized');
     }
 
     async checkAuthState() {
+        if (!supabase) {
+            logger.error('Cannot check auth state - Supabase not initialized');
+            return;
+        }
+
         try {
+            logger.log('Checking authentication state...');
             const { data: { session }, error } = await supabase.auth.getSession();
 
             if (error) {
-                console.error('Error getting session:', error);
-                this.showLandingPage();
+                logger.error('Error getting session: ' + error.message);
                 return;
             }
 
             if (session?.user) {
-                console.log('User authenticated:', session.user.email);
+                logger.success('User session found: ' + session.user.email);
                 this.user = session.user;
-                await this.onUserSignedIn();
+                this.debugStatus.updateAuthStatus(this.user);
+                this.updateUI();
             } else {
-                console.log('No user session found');
-                this.showLandingPage();
+                logger.log('No active user session');
             }
 
             // Listen for auth changes
             supabase.auth.onAuthStateChange(async (event, session) => {
-                console.log('Auth state changed:', event);
+                logger.log('Auth state changed: ' + event);
 
                 if (event === 'SIGNED_IN' && session?.user) {
                     this.user = session.user;
-                    await this.onUserSignedIn();
+                    this.debugStatus.updateAuthStatus(this.user);
+                    this.updateUI();
+                    await this.testDatabaseAccess();
                 } else if (event === 'SIGNED_OUT') {
                     this.user = null;
-                    this.onUserSignedOut();
+                    this.debugStatus.updateAuthStatus(null);
+                    this.updateUI();
                 }
             });
 
         } catch (error) {
-            console.error('Error checking auth state:', error);
-            this.showLandingPage();
+            logger.error('Error checking auth state: ' + error.message);
         }
     }
 
-    async onUserSignedIn() {
-        console.log('User signed in, loading app...');
-        this.hideAuthModal();
-        this.showTrackerApp();
-        this.updateNavigation();
-
-        if (!this.demoMode) {
-            await this.loadProgressFromDatabase();
-        }
-
-        this.renderTopics();
-        this.updateProgress();
-    }
-
-    onUserSignedOut() {
-        console.log('User signed out');
-        this.showLandingPage();
-        this.updateNavigation();
-        this.setSyncStatus('synced', 'Ready');
-    }
-
-    showLandingPage() {
-        document.getElementById('landingSection').classList.remove('hidden');
-        document.getElementById('trackerApp').classList.add('hidden');
-        this.updateNavigation();
-    }
-
-    showTrackerApp() {
-        document.getElementById('landingSection').classList.add('hidden');
-        document.getElementById('trackerApp').classList.remove('hidden');
-        this.updateNavigation();
-    }
-
-    updateNavigation() {
-        const guestNav = document.getElementById('guestNav');
-        const authNav = document.getElementById('authNav');
-        const userEmail = document.getElementById('userEmail');
-
-        if (this.user) {
-            guestNav.classList.add('hidden');
-            authNav.classList.remove('hidden');
-            userEmail.textContent = this.user.email;
-        } else {
-            guestNav.classList.remove('hidden');
-            authNav.classList.add('hidden');
-        }
-    }
-
-    async loadProgressFromDatabase() {
+    async testDatabaseAccess() {
         if (!this.user || !supabase) return;
 
-        this.setSyncStatus('syncing', 'Loading...');
-
         try {
+            logger.log('Testing database access for authenticated user...');
+
+            // Try to read user's progress
             const { data, error } = await supabase
                 .from('user_progress')
-                .select('topic_data, updated_at')
-                .eq('user_id', this.user.id)
-                .single();
-
-            if (error && error.code !== 'PGRST116') {
-                console.error('Error loading progress:', error);
-                this.setSyncStatus('error', 'Load failed');
-                return;
-            }
-
-            if (data?.topic_data) {
-                console.log('Progress loaded from database');
-                this.data.topics = data.topic_data;
-                this.setSyncStatus('synced', 'Synced');
-            } else {
-                console.log('No progress found, creating new record');
-                await this.saveProgressToDatabase();
-            }
-
-        } catch (error) {
-            console.error('Error loading progress:', error);
-            this.setSyncStatus('error', 'Load failed');
-        }
-    }
-
-    async saveProgressToDatabase() {
-        if (!this.user || !supabase) return;
-
-        this.setSyncStatus('syncing', 'Saving...');
-
-        try {
-            const { error } = await supabase
-                .from('user_progress')
-                .upsert({
-                    user_id: this.user.id,
-                    topic_data: this.data.topics,
-                    updated_at: new Date().toISOString()
-                });
+                .select('*')
+                .eq('user_id', this.user.id);
 
             if (error) {
-                console.error('Error saving progress:', error);
-                this.setSyncStatus('error', 'Save failed');
-                return;
+                logger.error('Database read failed: ' + error.message);
+            } else {
+                logger.success(`Database read successful - found ${data.length} records`);
+
+                // Try to write if no data exists
+                if (data.length === 0) {
+                    logger.log('No existing data, testing write access...');
+                    const testData = [{
+                        id: 'test',
+                        name: 'Test Topic',
+                        description: 'Test',
+                        subtopics: []
+                    }];
+
+                    const { error: writeError } = await supabase
+                        .from('user_progress')
+                        .insert({
+                            user_id: this.user.id,
+                            topic_data: testData
+                        });
+
+                    if (writeError) {
+                        logger.error('Database write failed: ' + writeError.message);
+                    } else {
+                        logger.success('Database write successful');
+                    }
+                }
             }
-
-            console.log('Progress saved to database');
-            this.setSyncStatus('synced', 'Synced');
-
         } catch (error) {
-            console.error('Error saving progress:', error);
-            this.setSyncStatus('error', 'Save failed');
+            logger.error('Database test error: ' + error.message);
         }
     }
 
-    setSyncStatus(status, text) {
-        const syncStatus = document.getElementById('syncStatus');
-        if (syncStatus) {
-            syncStatus.className = `sync-status ${status}`;
-            syncStatus.innerHTML = `<span>●</span><span>${text}</span>`;
+    updateUI() {
+        const signInBtn = document.getElementById('signInBtn');
+        const signUpBtn = document.getElementById('signUpBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+
+        if (this.user) {
+            signInBtn.classList.add('hidden');
+            signUpBtn.classList.add('hidden');
+            signOutBtn.classList.remove('hidden');
+        } else {
+            signInBtn.classList.remove('hidden');
+            signUpBtn.classList.remove('hidden');
+            signOutBtn.classList.add('hidden');
         }
+    }
+
+    bindDebugEvents() {
+        // Debug panel toggle
+        document.getElementById('debugToggle').addEventListener('click', () => {
+            const content = document.getElementById('debugContent');
+            const toggle = document.getElementById('debugToggle');
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.textContent = '−';
+            } else {
+                content.classList.add('collapsed');
+                toggle.textContent = '+';
+            }
+        });
+
+        // Test connection
+        document.getElementById('testConnectionBtn').addEventListener('click', async () => {
+            await this.debugStatus.updateSupabaseStatus();
+        });
+
+        // Test table
+        document.getElementById('testTableBtn').addEventListener('click', async () => {
+            await this.debugStatus.updateDatabaseStatus();
+        });
+
+        // Clear logs
+        document.getElementById('clearLogsBtn').addEventListener('click', () => {
+            logger.clear();
+        });
     }
 
     bindAuthEvents() {
@@ -1328,63 +955,23 @@ class DevOpsTracker {
             this.showAuthModal('signup');
         });
 
-        document.getElementById('getStartedBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showAuthModal('signup');
-        });
-
-        document.getElementById('learnMoreBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('DevOps Preparation Tracker helps you systematically prepare for DevOps interviews across 8 key technology areas: Terraform, Linux, Kubernetes, Jenkins, GitHub, GitLab, ArgoCD, and Networking. Track your progress with 80+ comprehensive topics, save notes, and sync across devices.');
-        });
-
         // Sign out
         document.getElementById('signOutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             this.signOut();
         });
-
-        // Close modal
-        document.getElementById('closeModal').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.hideAuthModal();
-        });
-
-        // Home link
-        document.getElementById('homeLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (this.user) {
-                this.showTrackerApp();
-            } else {
-                this.showLandingPage();
-            }
-        });
     }
 
     showAuthModal(mode = 'signin') {
-        // Set initial mode
         this.isSignUp = mode === 'signup';
         this.updateAuthModalMode();
 
         const modal = document.getElementById('authModal');
         modal.classList.remove('hidden');
 
-        // Focus email field after animation
         setTimeout(() => {
             document.getElementById('email').focus();
         }, 100);
-    }
-
-    hideAuthModal() {
-        const modal = document.getElementById('authModal');
-        modal.classList.add('hidden');
-        this.clearAuthForm();
-    }
-
-    toggleAuthMode() {
-        this.isSignUp = !this.isSignUp;
-        this.updateAuthModalMode();
-        this.clearAuthMessages();
     }
 
     updateAuthModalMode() {
@@ -1393,7 +980,6 @@ class DevOpsTracker {
         const authSwitchText = document.getElementById('authSwitchText');
         const authSwitchBtn = document.getElementById('authSwitchBtn');
         const nameGroup = document.getElementById('nameGroup');
-        const fullName = document.getElementById('fullName');
 
         if (this.isSignUp) {
             authTitle.textContent = 'Create Account';
@@ -1401,42 +987,46 @@ class DevOpsTracker {
             authSwitchText.textContent = 'Already have an account?';
             authSwitchBtn.textContent = 'Sign In';
             nameGroup.classList.remove('hidden');
-            fullName.setAttribute('required', 'required');
         } else {
-            authTitle.textContent = 'Welcome Back';
+            authTitle.textContent = 'Sign In';
             authSubmit.textContent = 'Sign In';
             authSwitchText.textContent = "Don't have an account?";
             authSwitchBtn.textContent = 'Sign Up';
             nameGroup.classList.add('hidden');
-            fullName.removeAttribute('required');
         }
+    }
+
+    toggleAuthMode() {
+        this.isSignUp = !this.isSignUp;
+        this.updateAuthModalMode();
+        this.clearAuthMessages();
     }
 
     async handleAuth(e) {
         e.preventDefault();
 
-        // Demo mode - simulate authentication
-        if (this.demoMode) {
-            const email = document.getElementById('email').value.trim();
-            if (!email) {
-                this.showAuthMessage('error', 'Please enter an email address');
-                return;
-            }
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const fullName = document.getElementById('fullName').value.trim();
 
-            // Simulate user login
+        logger.log(`Attempting to ${this.isSignUp ? 'sign up' : 'sign in'} user: ${email}`);
+
+        // Demo mode
+        if (DEMO_MODE) {
+            logger.warn('Demo mode - simulating authentication');
             this.user = { email: email, id: 'demo-user-' + Date.now() };
-            await this.onUserSignedIn();
+            this.debugStatus.updateAuthStatus(this.user);
+            this.updateUI();
+            document.getElementById('authModal').classList.add('hidden');
             return;
         }
 
         if (!supabase) {
-            this.showAuthMessage('error', 'Authentication service not available');
+            const error = 'Supabase not initialized';
+            logger.error(error);
+            this.showAuthMessage('error', error);
             return;
         }
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const fullName = document.getElementById('fullName').value.trim();
 
         // Validation
         if (!email || !password) {
@@ -1463,7 +1053,7 @@ class DevOpsTracker {
 
         try {
             if (this.isSignUp) {
-                console.log('Attempting to sign up user:', email);
+                logger.log('Calling supabase.auth.signUp...');
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -1477,24 +1067,25 @@ class DevOpsTracker {
                 if (error) throw error;
 
                 if (data?.user && !data.session) {
+                    logger.success('Sign up successful - verification email sent');
                     this.showAuthMessage('success', 'Account created! Please check your email for the verification link.');
                     return;
                 } else if (data?.session) {
-                    this.showAuthMessage('success', 'Account created successfully!');
+                    logger.success('Sign up successful with immediate session');
                 }
             } else {
-                console.log('Attempting to sign in user:', email);
+                logger.log('Calling supabase.auth.signInWithPassword...');
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
                 if (error) throw error;
-                console.log('Sign in successful');
+                logger.success('Sign in successful');
             }
 
         } catch (error) {
-            console.error('Auth error:', error);
+            logger.error('Authentication error: ' + error.message);
             let errorMessage = error.message;
 
             if (errorMessage.includes('Invalid login credentials')) {
@@ -1513,12 +1104,18 @@ class DevOpsTracker {
     }
 
     async signOut() {
-        console.log('Signing out user...');
+        logger.log('Signing out user...');
 
-        // Demo mode
-        if (this.demoMode || !supabase) {
+        if (DEMO_MODE) {
             this.user = null;
-            this.onUserSignedOut();
+            this.debugStatus.updateAuthStatus(null);
+            this.updateUI();
+            logger.success('Demo user signed out');
+            return;
+        }
+
+        if (!supabase) {
+            logger.error('Cannot sign out - Supabase not initialized');
             return;
         }
 
@@ -1526,10 +1123,9 @@ class DevOpsTracker {
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
 
-            console.log('User signed out successfully');
-            // Auth state change will be handled by the listener
+            logger.success('User signed out successfully');
         } catch (error) {
-            console.error('Error signing out:', error);
+            logger.error('Sign out error: ' + error.message);
             alert('Failed to sign out. Please try again.');
         }
     }
@@ -1558,349 +1154,20 @@ class DevOpsTracker {
         successEl.classList.add('hidden');
     }
 
-    clearAuthForm() {
-        document.getElementById('email').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('fullName').value = '';
-        this.clearAuthMessages();
-    }
-
     bindEvents() {
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.filterTopics(e.target.value);
-            });
-        }
-
-        // Expand/Collapse all
-        const expandAllBtn = document.getElementById('expandAllBtn');
-        if (expandAllBtn) {
-            expandAllBtn.addEventListener('click', () => {
-                this.toggleAllTopics();
-            });
-        }
-
-        // Export progress
-        const exportBtn = document.getElementById('exportBtn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportProgress();
-            });
-        }
-
-        // Click outside modal to close
-        const authModal = document.getElementById('authModal');
-        authModal.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                this.hideAuthModal();
-            }
-        });
-    }
-
-    renderTopics() {
-        console.log('Rendering topics...');
-        const container = document.getElementById('topicsContainer');
-        if (!container) {
-            console.error('Topics container not found');
-            return;
-        }
-
-        container.innerHTML = '';
-
-        this.data.topics.forEach((topic) => {
-            const completedCount = topic.subtopics.filter(st => st.completed).length;
-            const totalCount = topic.subtopics.length;
-            const percentage = Math.round((completedCount / totalCount) * 100);
-
-            const topicElement = document.createElement('div');
-            topicElement.className = 'topic-section';
-            topicElement.setAttribute('data-topic-id', topic.id);
-
-            topicElement.innerHTML = `
-                <div class="card">
-                    <div class="card__header topic-header" data-topic="${topic.id}">
-                        <div class="topic-header__left">
-                            <button class="topic-toggle" aria-expanded="false">
-                                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none">
-                                    <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <div class="topic-info">
-                                <h3 class="topic-title">${topic.name}</h3>
-                                <p class="topic-description">${topic.description}</p>
-                            </div>
-                        </div>
-                        <div class="topic-header__right">
-                            <div class="progress-indicator">
-                                <div class="progress-circle" data-percentage="${percentage}">
-                                    <svg class="progress-ring" width="40" height="40">
-                                        <circle class="progress-ring__circle" stroke="currentColor" stroke-width="3" 
-                                                fill="transparent" r="18" cx="20" cy="20"/>
-                                    </svg>
-                                    <span class="progress-text">${percentage}%</span>
-                                </div>
-                                <span class="progress-stats-small">${completedCount}/${totalCount}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card__body topic-content">
-                        <div class="subtopics-list">
-                            ${topic.subtopics.map(subtopic => `
-                                <div class="subtopic-item ${subtopic.completed ? 'completed' : ''}" data-subtopic-id="${subtopic.id}">
-                                    <div class="subtopic-header">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" ${subtopic.completed ? 'checked' : ''} 
-                                                   data-topic="${topic.id}" data-subtopic="${subtopic.id}">
-                                            <span class="checkbox-custom"></span>
-                                            <span class="subtopic-name">${subtopic.name}</span>
-                                        </label>
-                                    </div>
-                                    <div class="subtopic-comments">
-                                        <textarea class="form-control" placeholder="Add your notes and comments here..." 
-                                                  data-topic="${topic.id}" data-subtopic="${subtopic.id}">${subtopic.comments || ''}</textarea>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(topicElement);
-        });
-
-        console.log(`Rendered ${this.data.topics.length} topics`);
-        this.bindTopicEvents();
-    }
-
-    bindTopicEvents() {
-        // Topic toggle functionality
-        document.querySelectorAll('.topic-header').forEach(header => {
-            header.addEventListener('click', (e) => {
-                if (e.target.closest('.progress-indicator')) return;
-
-                const topicId = header.getAttribute('data-topic');
-                this.toggleTopic(topicId);
-            });
-        });
-
-        // Checkbox change events
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', async (e) => {
-                const topicId = e.target.getAttribute('data-topic');
-                const subtopicId = e.target.getAttribute('data-subtopic');
-                await this.toggleSubtopic(topicId, subtopicId, e.target.checked);
-            });
-        });
-
-        // Comment textarea events
-        document.querySelectorAll('.subtopic-comments textarea').forEach(textarea => {
-            textarea.addEventListener('blur', async (e) => {
-                const topicId = e.target.getAttribute('data-topic');
-                const subtopicId = e.target.getAttribute('data-subtopic');
-                await this.updateSubtopicComment(topicId, subtopicId, e.target.value);
-            });
-        });
-    }
-
-    toggleTopic(topicId) {
-        const topicElement = document.querySelector(`[data-topic-id="${topicId}"]`);
-        const content = topicElement.querySelector('.topic-content');
-        const toggle = topicElement.querySelector('.topic-toggle');
-        const isExpanded = content.style.display === 'block';
-
-        if (isExpanded) {
-            content.style.display = 'none';
-            toggle.setAttribute('aria-expanded', 'false');
-        } else {
-            content.style.display = 'block';
-            toggle.setAttribute('aria-expanded', 'true');
-        }
-    }
-
-    toggleAllTopics() {
-        const expandAllText = document.getElementById('expandAllText');
-
-        this.allExpanded = !this.allExpanded;
-
-        document.querySelectorAll('.topic-section').forEach(topicElement => {
-            const content = topicElement.querySelector('.topic-content');
-            const toggle = topicElement.querySelector('.topic-toggle');
-
-            if (this.allExpanded) {
-                content.style.display = 'block';
-                toggle.setAttribute('aria-expanded', 'true');
-            } else {
-                content.style.display = 'none';
-                toggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        expandAllText.textContent = this.allExpanded ? 'Collapse All' : 'Expand All';
-    }
-
-    async toggleSubtopic(topicId, subtopicId, completed) {
-        const topic = this.data.topics.find(t => t.id === topicId);
-        const subtopic = topic.subtopics.find(st => st.id === subtopicId);
-
-        subtopic.completed = completed;
-
-        // Update UI
-        const subtopicElement = document.querySelector(`[data-subtopic-id="${subtopicId}"]`);
-        if (completed) {
-            subtopicElement.classList.add('completed');
-        } else {
-            subtopicElement.classList.remove('completed');
-        }
-
-        this.updateProgress();
-
-        if (!this.demoMode) {
-            await this.saveProgressToDatabase();
-        }
-    }
-
-    async updateSubtopicComment(topicId, subtopicId, comment) {
-        const topic = this.data.topics.find(t => t.id === topicId);
-        const subtopic = topic.subtopics.find(st => st.id === subtopicId);
-
-        subtopic.comments = comment;
-
-        if (!this.demoMode) {
-            await this.saveProgressToDatabase();
-        }
-    }
-
-    updateProgress() {
-        const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
-        const completedSubtopics = this.data.topics.reduce((sum, topic) => 
-            sum + topic.subtopics.filter(st => st.completed).length, 0);
-
-        const overallPercentage = Math.round((completedSubtopics / totalSubtopics) * 100);
-
-        // Update overall progress
-        const progressFill = document.getElementById('overallProgressFill');
-        const progressText = document.getElementById('overallProgressText');
-        const completedStats = document.getElementById('completedStats');
-        const lastUpdated = document.getElementById('lastUpdated');
-
-        if (progressFill) progressFill.style.width = `${overallPercentage}%`;
-        if (progressText) progressText.textContent = `${overallPercentage}%`;
-        if (completedStats) completedStats.textContent = `${completedSubtopics} of ${totalSubtopics} topics completed`;
-        if (lastUpdated) lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
-
-        // Update individual topic progress circles
-        this.data.topics.forEach(topic => {
-            const completedCount = topic.subtopics.filter(st => st.completed).length;
-            const totalCount = topic.subtopics.length;
-            const percentage = Math.round((completedCount / totalCount) * 100);
-
-            const progressCircle = document.querySelector(`[data-topic-id="${topic.id}"] .progress-circle`);
-            if (progressCircle) {
-                const circle = progressCircle.querySelector('.progress-ring__circle');
-                const text = progressCircle.querySelector('.progress-text');
-                const stats = progressCircle.parentElement.querySelector('.progress-stats-small');
-
-                if (circle && text && stats) {
-                    const radius = 18;
-                    const circumference = radius * 2 * Math.PI;
-                    const offset = circumference - (percentage / 100) * circumference;
-
-                    circle.style.strokeDasharray = circumference;
-                    circle.style.strokeDashoffset = offset;
-
-                    text.textContent = `${percentage}%`;
-                    stats.textContent = `${completedCount}/${totalCount}`;
-                }
-            }
-        });
-    }
-
-    filterTopics(searchTerm) {
-        const normalizedSearch = searchTerm.toLowerCase().trim();
-
-        document.querySelectorAll('.topic-section').forEach(topicElement => {
-            const topicName = topicElement.querySelector('.topic-title').textContent.toLowerCase();
-            const subtopics = Array.from(topicElement.querySelectorAll('.subtopic-name')).map(el => el.textContent.toLowerCase());
-
-            const topicMatches = topicName.includes(normalizedSearch);
-            const subtopicMatches = subtopics.some(subtopic => subtopic.includes(normalizedSearch));
-
-            if (normalizedSearch === '' || topicMatches || subtopicMatches) {
-                topicElement.style.display = 'block';
-
-                // If searching and subtopic matches, expand the topic
-                if (normalizedSearch !== '' && subtopicMatches) {
-                    const content = topicElement.querySelector('.topic-content');
-                    const toggle = topicElement.querySelector('.topic-toggle');
-                    content.style.display = 'block';
-                    toggle.setAttribute('aria-expanded', 'true');
-                }
-            } else {
-                topicElement.style.display = 'none';
-            }
-        });
-    }
-
-    exportProgress() {
-        if (!this.user) return;
-
-        const totalSubtopics = this.data.topics.reduce((sum, topic) => sum + topic.subtopics.length, 0);
-        const completedSubtopics = this.data.topics.reduce((sum, topic) => 
-            sum + topic.subtopics.filter(st => st.completed).length, 0);
-
-        let exportText = `DevOps Preparation Progress Report - ${this.user.email}\n`;
-        exportText += `Generated: ${new Date().toLocaleString()}\n`;
-        exportText += `Overall Progress: ${completedSubtopics}/${totalSubtopics} (${Math.round((completedSubtopics / totalSubtopics) * 100)}%)\n\n`;
-
-        this.data.topics.forEach(topic => {
-            const completed = topic.subtopics.filter(st => st.completed).length;
-            const total = topic.subtopics.length;
-            const percentage = Math.round((completed / total) * 100);
-
-            exportText += `${topic.name}: ${completed}/${total} (${percentage}%)\n`;
-
-            topic.subtopics.forEach(subtopic => {
-                const status = subtopic.completed ? '✓' : '○';
-                exportText += `  ${status} ${subtopic.name}`;
-                if (subtopic.comments) {
-                    exportText += ` - ${subtopic.comments}`;
-                }
-                exportText += '\n';
-            });
-            exportText += '\n';
-        });
-
-        // Create and download file
-        const blob = new Blob([exportText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `devops-prep-progress-${this.user.email.split('@')[0]}-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Additional event bindings would go here
     }
 }
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing DevOps Tracker...');
+    logger.log('DOM loaded, starting application...');
 
     try {
         window.tracker = new DevOpsTracker();
     } catch (error) {
-        console.error('Failed to initialize DevOps Tracker:', error);
-        document.body.innerHTML = `
-            <div style="padding: 2rem; text-align: center;">
-                <h2>❌ Failed to Load</h2>
-                <p>DevOps Tracker failed to initialize. Please refresh the page.</p>
-                <p style="color: #dc2626; font-size: 0.9rem;">${error.message}</p>
-            </div>
-        `;
+        logger.error('Failed to initialize application: ' + error.message);
+        alert('Failed to load DevOps Tracker. Check the debug console for details.');
     }
 });
     </script>
